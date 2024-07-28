@@ -180,6 +180,7 @@ function cmousePressed() {
             break;
         }
     }
+    document.querySelector('#debug_text').innerHTML = `Pressed:(${mouseX}, ${mouseY})\n`;
 }
 
 function cmouseDragged() {
@@ -187,10 +188,13 @@ function cmouseDragged() {
         draggingPoint.x = mouseX;
         draggingPoint.y = mouseY;
     }
+    document.querySelector('#debug_text').innerHTML = `Dragged:(${mouseX}, ${mouseY})\n`;
+
 }
 
 function cmouseReleased() {
     draggingPoint = null;
+    document.querySelector('#debug_text').innerHTML = `Released:(${mouseX}, ${mouseY})\n`;
 }
 
 function keyPressed() {

@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/07/28 22:11:32
+  last modified: 2024/07/28 23:20:58
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -27,18 +27,22 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-12" style="margin:0;padding:0;">
+            <div class="col-12 mb-3" style="margin:0;padding:0;">
                 <div id="p5canvas"></div>
             </div>
         </div>
         <div class="row" id="control_ui">
-            <div class="col-sm-12">
+            <div class="col-12">
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="videoSource"><i class="bi bi-camera-video"></i></label>
                     <select class="form-select" id="videoSource"></select>
                     <button type="button" class="btn btn-primary" id="fullscreenButton" onclick="toggleFullScreen();"><i
                             class="bi bi-fullscreen"></i></button>
                 </div>
+            </div>
+            <div class="col-12" id="debug">
+                <textarea class="form-control" id="debug_text" rows="3" placeholder="Debug textarea"
+                    readonly></textarea>
             </div>
         </div>
 
