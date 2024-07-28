@@ -155,11 +155,12 @@ function draw() {
                 }
             }
             tint(255, 200); // 半分の不透明度で表示
-            drawSlide(20, 20, width * 0.25, height * 0.25);
+            const aspect = parseFloat(document.querySelector('#aspect').value);
+            drawSlide(20, 20, width * 0.25, width * 0.25 * aspect);
             tint(255, 255);
             stroke(0, 255, 0);
             strokeWeight(2);
-            rect(20, 20, width * .25, height * .25);
+            rect(20, 20, width * .25, width * 0.25 * aspect);
             // 右上に "preview" の文字をいれる
             fill(255);
             noStroke();
@@ -168,7 +169,8 @@ function draw() {
             text('preview', -5 + 20 + width * 0.25, 25);
 
         } else {
-            drawSlide(0, 0, width, height);
+            const aspect = parseFloat(document.querySelector('#aspect').value);
+            drawSlide(0, 0, width, width * aspect);
         }
     }
 }

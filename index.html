@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/07/28 23:58:42
+  last modified: 2024/07/29 01:24:47
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -36,6 +36,12 @@
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="videoSource"><i class="bi bi-camera-video"></i></label>
                     <select class="form-select" id="videoSource"></select>
+                    <select class="form-select" id="aspect">
+                        <option class="form-select" value="0.625" selected>16:10</option>
+                        <option class="form-select" value="0.75">4:3</option>
+                        <option class="form-select" value="0.5625">16:9</option>
+                    </select>
+
                     <button type="button" class="btn btn-primary" id="fullscreenButton" onclick="toggleFullScreen();"><i
                             class="bi bi-fullscreen"></i></button>
                 </div>
