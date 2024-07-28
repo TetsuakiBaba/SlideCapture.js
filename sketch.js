@@ -175,7 +175,7 @@ function drawSlide(x, y, w, h) {
 
 function cmousePressed() {
     for (let i = 0; i < points.length; i++) {
-        if (dist(mouseX, mouseY, points[i].x, points[i].y) < 20) {
+        if (dist(mouseX, mouseY, points[i].x, points[i].y) < 50) {
             draggingPoint = points[i];
             break;
         }
