@@ -4,6 +4,7 @@ let points = [];
 let draggingPoint = null;
 let homographyMode = false;
 let transformedImage;
+let active_number = -1;
 
 function setup() {
     transformedImage = createGraphics(1280, 720);
@@ -140,7 +141,12 @@ function draw() {
             stroke(255, 0, 0);
             strokeWeight(8);
             for (let i = 0; i < points.length; i++) {
-                point(points[i].x, points[i].y);
+                if (active_number == i) {
+                    circle(points[i].x, points[i].y, 15);
+                }
+                else {
+                    circle(points[i].x, points[i].y, 5);
+                }
             }
             tint(255, 200); // 半分の不透明度で表示
             drawSlide(20, 20, width * 0.25, height * 0.25);
@@ -177,6 +183,7 @@ function cmousePressed() {
     for (let i = 0; i < points.length; i++) {
         if (dist(mouseX, mouseY, points[i].x, points[i].y) < 50) {
             draggingPoint = points[i];
+            active_number = i;
             break;
         }
     }
@@ -194,6 +201,7 @@ function cmouseDragged() {
 
 function cmouseReleased() {
     draggingPoint = null;
+    active_number = -1;
     document.querySelector('#debug_text').innerHTML = `Released:(${mouseX}, ${mouseY})\n`;
 }
 
