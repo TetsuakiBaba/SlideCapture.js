@@ -50,10 +50,10 @@ function setup() {
 
     // デフォルトの4点をランダムにしないで設定
     points = [
-        createVector(500, 100),
-        createVector(1180, 100),
-        createVector(1180, 620),
-        createVector(500, 620)
+        { x: 500, y: 100 },
+        { x: 1180, y: 100 },
+        { x: 1180, y: 620 },
+        { x: 500, y: 620 }
     ];
     // もしlocalStorageにpoints情報があればそれを使う
     let savedPoints = localStorage.getItem('slidecapture.points');
