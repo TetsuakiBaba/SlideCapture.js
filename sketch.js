@@ -7,7 +7,48 @@ let transformedImage;
 
 function setup() {
     transformedImage = createGraphics(1280, 720);
-    createCanvas(1280, 720);
+
+    let c = createCanvas(1280, 720);
+    c.parent('p5canvas');
+    // cを縦横比を固定して横幅100%表示にする
+    c.style('height', 'auto');
+    c.style('width', '100%');
+
+    if (navigator.userAgent.indexOf('iPhone') > 0 ||
+        navigator.userAgent.indexOf('iPod') > 0 ||
+        (navigator.userAgent.indexOf('Android') > 0 &&
+            navigator.userAgent.indexOf('Mobile') > 0)) {
+        //スマホ用の処理
+        c.touchStarted(mousePressed);
+        c.touchMoved(mouseDragged);
+        c.touchEnded(mouseReleased);
+        disable_scroll();
+        is_pc = false;
+    } else if (navigator.userAgent.indexOf('iPad') > 0 ||
+        navigator.userAgent.indexOf('Android') > 0) {
+        //タブレット用の処理
+        c.touchStarted(mousePressed);
+        c.touchMoved(mouseDragged);
+        c.touchEnded(mouseReleased);
+        disable_scroll();
+        is_pc = false;
+    } else if (navigator.userAgent.indexOf('Safari') > 0 &&
+        navigator.userAgent.indexOf('Chrome') == -1 &&
+        typeof document.ontouchstart !== 'undefined') {
+        //iOS13以降のiPad用の処理
+        c.touchStarted(mousePressed);
+        c.touchMoved(mouseDragged);
+        c.touchEnded(mouseReleased);
+        disable_scroll();
+        is_pc = false;
+    } else {
+        c.mousePressed(mousePressed);
+        c.mouseMoved(mouseDragged);
+        c.mouseReleased(mouseReleased);
+        is_pc = true;
+    }
+
+
     videoSourceSelect = select('#videoSource');
     videoSourceSelect.changed(initVideo);
 
@@ -18,6 +59,12 @@ function setup() {
         createVector(1180, 620),
         createVector(500, 620)
     ];
+    // もしlocalStorageにpoints情報があればそれを使う
+    let savedPoints = localStorage.getItem('slidecapture.points');
+    if (savedPoints) {
+        points = JSON.parse(savedPoints);
+    }
+    console.log(points);
 
     initVideo();
 }
@@ -37,6 +84,9 @@ function initVideo() {
         },
         audio: false
     };
+
+    // deviceidをlocalStorageに保存
+    localStorage.setItem('slidecapture.deviceId', videoSourceSelect.value());
 
     video = createCapture(constraints, () => {
         video.hide();
@@ -67,25 +117,35 @@ function draw() {
             for (let i = 0; i < points.length; i++) {
                 point(points[i].x, points[i].y);
             }
+            tint(255, 200); // 半分の不透明度で表示
+            drawSlide(20, 20, width * 0.25, height * 0.25);
+            tint(255, 255);
+            stroke(0, 255, 0);
+            strokeWeight(2);
+            rect(20, 20, width * .25, height * .25);
+            // 右上に "preview" の文字をいれる
+            fill(255);
+            noStroke();
+            textSize(16);
+            textAlign(RIGHT, TOP);
+            text('preview', -5 + 20 + width * 0.25, 25);
 
-            drawSlide(0, 0, width / 2, height / 2);
         } else {
-            drawSlide(0, 0, width * 2, height * 2);
+            drawSlide(0, 0, width, height);
         }
     }
 }
 
 function drawSlide(x, y, w, h) {
-    let srcPoints = [points[0].copy(), points[1].copy(), points[2].copy(), points[3].copy()];
-
-    // スクリーンショットの画像を取得
-    // let videoFrame = createGraphics(width, height);
-    // videoFrame.image(video, 0, 0, video.width, video.height);
-    // let img = videoFrame.get();
-
-    // image(img, 300, 10, 100, 100);
+    let srcPoints = [
+        { x: points[0].x, y: points[0].y },
+        { x: points[1].x, y: points[1].y },
+        { x: points[2].x, y: points[2].y },
+        { x: points[3].x, y: points[3].y }];
+    // points情報を localStorageに保存
+    localStorage.setItem('slidecapture.points', JSON.stringify(srcPoints));
     let img = rectifyImage(video.get(), srcPoints, 0, 0, video.width, video.height);
-    image(img.get(), x, y, w, h);
+    image(img.get(), x, y, w * 2, h * 2);
 }
 
 function mousePressed() {
@@ -110,8 +170,9 @@ function mouseReleased() {
 
 function keyPressed() {
     if (key === ' ') {
-        homographyMode = !homographyMode;
+
         toggleFullScreen()
+
     }
 }
 
@@ -179,9 +240,17 @@ function createMatrixFromPoints(points) {
 
 
 function toggleFullScreen() {
+    homographyMode = !homographyMode;
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
     } else if (document.exitFullscreen) {
         document.exitFullscreen();
+    }
+
+    if (homographyMode) {
+        document.querySelector('#control_ui').style.display = 'none';
+    }
+    else {
+        document.querySelector('#control_ui').style.display = '';
     }
 }
