@@ -6,11 +6,12 @@ let homographyMode = false;
 let transformedImage;
 let active_number = -1;
 let is_pc = true;
+let p5canvas;
 
 function setup() {
     transformedImage = createGraphics(1280, 720);
 
-    let c = createCanvas(1280, 720);
+    let c = p5canvas = createCanvas(1280, 720);
     c.parent('p5canvas');
     // cを縦横比を固定して横幅100%表示にする
     c.style('height', 'auto');
@@ -67,7 +68,6 @@ function setup() {
     if (savedPoints) {
         points = JSON.parse(savedPoints);
     }
-    console.log(points);
 
     initVideo();
 
@@ -77,6 +77,15 @@ function setup() {
             homographyMode = false;
             document.querySelector('#control_ui').style.display = '';
         }
+        const aspect = parseFloat(document.querySelector('#aspect').value);
+        if (homographyMode) {
+            resizeCanvas(1280, 1280 * aspect);
+        }
+        else {
+            resizeCanvas(1280, 720);
+        }
+        p5canvas.style('height', 'auto');
+        p5canvas.style('width', '100%');
     });
 }
 // スクロール禁止
@@ -127,7 +136,6 @@ function initVideo() {
 
 function draw() {
     background(0);
-
     // videoに新しいフレームがある場合
     if (video.loadedmetadata) {
 
@@ -231,9 +239,7 @@ function cmouseReleased() {
 
 function keyPressed() {
     if (key === ' ') {
-
         toggleFullScreen()
-
     }
 }
 
@@ -303,11 +309,27 @@ function createMatrixFromPoints(points) {
 
 function toggleFullScreen() {
     homographyMode = !homographyMode;
+
+
+
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
     } else if (document.exitFullscreen) {
         document.exitFullscreen();
     }
+
+
+    const aspect = parseFloat(document.querySelector('#aspect').value);
+    if (homographyMode) {
+        resizeCanvas(1280, 1280 * aspect);
+    }
+    else {
+        resizeCanvas(1280, 720);
+    }
+    p5canvas.style('height', 'auto');
+    p5canvas.style('width', '100%');
+
+
 
     if (homographyMode) {
         document.querySelector('#control_ui').style.display = 'none';
