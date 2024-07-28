@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"
+        integrity="sha512-d6sc8kbZEtA2LwB9m/ck0FhvyUwVfdmvTeyJRprmj7Wg9wRFtHDIpr6qk4g/y3Ix3O9I6KHIv6SGu9f7RaP1Gw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>p5.js Sketch</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        // This fixed it, preferably this would be hidden away though
+        document.addEventListener('touchstart', {});
+        let target = { x: 200, y: 200 };
+        let mypoint = null;
+        function setup() {
+            let c = createCanvas(400, 400);
+            if (navigator.userAgent.indexOf('iPhone') > 0 ||
+                navigator.userAgent.indexOf('iPod') > 0 ||
+                (navigator.userAgent.indexOf('Android') > 0 &&
+                    navigator.userAgent.indexOf('Mobile') > 0)) {
+                //スマホ用の処理
+                c.touchStarted(cmousePressed);
+                c.touchMoved(cmouseDragged);
+                c.touchEnded(cmouseReleased);
+                disable_scroll();
+            } else if (navigator.userAgent.indexOf('iPad') > 0 ||
+                navigator.userAgent.indexOf('Android') > 0) {
+                //タブレット用の処理
+                c.touchStarted(cmousePressed);
+                c.touchMoved(cmouseDragged);
+                c.touchEnded(cmouseReleased);
+                disable_scroll();
+            } else if (navigator.userAgent.indexOf('Safari') > 0 &&
+                navigator.userAgent.indexOf('Chrome') == -1 &&
+                typeof document.ontouchstart !== 'undefined') {
+                //iOS13以降のiPad用の処理
+                c.touchStarted(cmousePressed);
+                c.touchMoved(cmouseDragged);
+                c.touchEnded(cmouseReleased);
+                disable_scroll();
+            } else {
+                c.mousePressed(cmousePressed);
+                c.mouseMoved(cmouseDragged);
+                c.mouseReleased(cmouseReleased);
+            }
+        }
+
+        function draw() {
+            background(220);
+
+            fill(255, 0, 0);
+            rectMode(CENTER);
+            rect(mouseX, mouseY, 200, 100);
+            let display = touches.length + " touches";
+
+            text(display, 5, 10);
+            for (var i = 0; i < touches.length; i++) {
+                ellipse(touches[i].x, touches[i].y, 100, 50);
+            }
+
+            fill(0);
+            ellipse(target.x, target.y, 10, 10);
+        }
+
+        let flg_dragging = false;
+
+        function cmousePressed(event) {
+            mouseX = event.touches[0].clientX;
+            mouseY = event.touches[0].clientY;
+            if (dist(mouseX, mouseY, target.x, target.y) < 40) {
+                mypoint = target;
+                mypoint.x = mouseX;
+                mypoint.y = mouseY;
+                flg_dragging = true;
+            }
+
+
+        }
+        function cmouseDragged() {
+            if (flg_dragging == true) {
+                mypoint.x = mouseX;
+                mypoint.y = mouseY;
+                console.log(flg_dragging);
+            }
+        }
+        function cmouseReleased() {
+            mypoint = null;
+            flg_dragging = false;
+            console.log("released", mypoint);
+        }
+
+        // スクロール禁止
+        function disable_scroll() {
+            // PCでのスクロール禁止
+            document.addEventListener("mousewheel", scroll_control, { passive: false });
+            // スマホでのタッチ操作でのスクロール禁止
+            document.addEventListener("touchmove", scroll_control, { passive: false });
+        }
+        // スクロール禁止解除
+        function enable_scroll() {
+            // PCでのスクロール禁止解除
+            document.removeEventListener("mousewheel", scroll_control, { passive: false });
+            // スマホでのタッチ操作でのスクロール禁止解除
+            document.removeEventListener('touchmove', scroll_control, { passive: false });
+        }
+
+        // スクロール関連メソッド
+        function scroll_control(event) {
+            event.preventDefault();
+        }
+
+    </script>
+</body>
+
+</html>

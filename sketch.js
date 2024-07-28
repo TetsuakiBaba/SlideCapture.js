@@ -5,6 +5,7 @@ let draggingPoint = null;
 let homographyMode = false;
 let transformedImage;
 let active_number = -1;
+let is_pc = true;
 
 function setup() {
     transformedImage = createGraphics(1280, 720);
@@ -25,6 +26,7 @@ function setup() {
         c.touchMoved(cmouseDragged);
         c.touchEnded(cmouseReleased);
         disable_scroll();
+        is_pc = false;
     } else if (navigator.userAgent.indexOf('iPad') > 0 ||
         navigator.userAgent.indexOf('Android') > 0) {
         //タブレット用の処理
@@ -32,6 +34,7 @@ function setup() {
         c.touchMoved(cmouseDragged);
         c.touchEnded(cmouseReleased);
         disable_scroll();
+        is_pc = false;
     } else if (navigator.userAgent.indexOf('Safari') > 0 &&
         navigator.userAgent.indexOf('Chrome') == -1 &&
         typeof document.ontouchstart !== 'undefined') {
@@ -40,10 +43,12 @@ function setup() {
         c.touchMoved(cmouseDragged);
         c.touchEnded(cmouseReleased);
         disable_scroll();
+        is_pc = false;
     } else {
         c.mousePressed(cmousePressed);
         c.mouseMoved(cmouseDragged);
         c.mouseReleased(cmouseReleased);
+        is_pc = true;
     }
 
 
@@ -180,7 +185,22 @@ function drawSlide(x, y, w, h) {
     image(img.get(), x, y, w * 2, h * 2);
 }
 
-function cmousePressed() {
+function cmousePressed(event) {
+    // mouseX, mouseYはこのタイミングでは更新されていないため、eventのtouches情報を利用する。ただしこの場合はcanvasの座標系ではなく、domのサイズによる座標系になるため事前にその計算を行う必要がある
+    if (!is_pc) {
+        let dom = document.querySelector('#p5canvas');
+        console.log(dom.clientWidth, dom.clientHeight);
+        let max = {
+            x: dom.clientWidth,
+            y: dom.clientHeight
+        }
+        let rect = event.target.getBoundingClientRect();
+        mouseX = width * (event.touches[0].clientX - rect.left) / max.x;
+        mouseY = height * (event.touches[0].clientY - rect.top) / max.y;
+    }
+    console.log(mouseX, mouseY);
+    // mouseX = event.touches[0].clientX;
+    // mouseY = event.touches[0].clientY;
     for (let i = 0; i < points.length; i++) {
         if (dist(mouseX, mouseY, points[i].x, points[i].y) < 50) {
             draggingPoint = points[i];
@@ -192,6 +212,7 @@ function cmousePressed() {
 }
 
 function cmouseDragged() {
+
     if (draggingPoint) {
         draggingPoint.x = mouseX;
         draggingPoint.y = mouseY;
