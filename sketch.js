@@ -63,6 +63,14 @@ function setup() {
     console.log(points);
 
     initVideo();
+
+    // fullscreenchangeイベントを監視
+    document.addEventListener('fullscreenchange', (event) => {
+        if (!document.fullscreenElement) {
+            homographyMode = false;
+            document.querySelector('#control_ui').style.display = '';
+        }
+    });
 }
 // スクロール禁止
 function disable_scroll() {
@@ -106,6 +114,8 @@ function initVideo() {
     video = createCapture(constraints, () => {
         video.hide();
     });
+
+
 }
 
 function draw() {
@@ -252,6 +262,7 @@ function createMatrixFromPoints(points) {
     mat.set(pts);
     return mat;
 }
+
 
 
 function toggleFullScreen() {
