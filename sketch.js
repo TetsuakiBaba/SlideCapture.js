@@ -111,6 +111,7 @@ function mouseReleased() {
 function keyPressed() {
     if (key === ' ') {
         homographyMode = !homographyMode;
+        toggleFullScreen()
     }
 }
 
@@ -174,4 +175,13 @@ function createMatrixFromPoints(points) {
 
     mat.set(pts);
     return mat;
+}
+
+
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+    }
 }
