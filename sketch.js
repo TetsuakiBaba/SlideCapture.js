@@ -19,29 +19,29 @@ function setup() {
         (navigator.userAgent.indexOf('Android') > 0 &&
             navigator.userAgent.indexOf('Mobile') > 0)) {
         //スマホ用の処理
-        c.touchStarted(mousePressed);
-        c.touchMoved(mouseDragged);
-        c.touchEnded(mouseReleased);
+        c.touchStarted(cmousePressed);
+        c.touchMoved(cmouseDragged);
+        c.touchEnded(cmouseReleased);
         disable_scroll();
     } else if (navigator.userAgent.indexOf('iPad') > 0 ||
         navigator.userAgent.indexOf('Android') > 0) {
         //タブレット用の処理
-        c.touchStarted(mousePressed);
-        c.touchMoved(mouseDragged);
-        c.touchEnded(mouseReleased);
+        c.touchStarted(cmousePressed);
+        c.touchMoved(cmouseDragged);
+        c.touchEnded(cmouseReleased);
         disable_scroll();
     } else if (navigator.userAgent.indexOf('Safari') > 0 &&
         navigator.userAgent.indexOf('Chrome') == -1 &&
         typeof document.ontouchstart !== 'undefined') {
         //iOS13以降のiPad用の処理
-        c.touchStarted(mousePressed);
-        c.touchMoved(mouseDragged);
-        c.touchEnded(mouseReleased);
+        c.touchStarted(cmousePressed);
+        c.touchMoved(cmouseDragged);
+        c.touchEnded(cmouseReleased);
         disable_scroll();
     } else {
-        c.mousePressed(mousePressed);
-        c.mouseMoved(mouseDragged);
-        c.mouseReleased(mouseReleased);
+        c.mousePressed(cmousePressed);
+        c.mouseMoved(cmouseDragged);
+        c.mouseReleased(cmouseReleased);
     }
 
 
@@ -163,23 +163,23 @@ function drawSlide(x, y, w, h) {
     image(img.get(), x, y, w * 2, h * 2);
 }
 
-function mousePressed() {
+function cmousePressed() {
     for (let i = 0; i < points.length; i++) {
-        if (dist(mouseX, mouseY, points[i].x, points[i].y) < 10) {
+        if (dist(mouseX, mouseY, points[i].x, points[i].y) < 20) {
             draggingPoint = points[i];
             break;
         }
     }
 }
 
-function mouseDragged() {
+function cmouseDragged() {
     if (draggingPoint) {
         draggingPoint.x = mouseX;
         draggingPoint.y = mouseY;
     }
 }
 
-function mouseReleased() {
+function cmouseReleased() {
     draggingPoint = null;
 }
 
