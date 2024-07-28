@@ -30,10 +30,12 @@ function initVideo() {
     let constraints = {
         video: {
             deviceId: videoSourceSelect.value(),
+            facingMode: "environment",
             width: { ideal: 1280 },
             height: { ideal: 720 },
             frameRate: { ideal: 30 }
-        }
+        },
+        audio: false
     };
 
     video = createCapture(constraints, () => {
