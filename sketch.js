@@ -15,6 +15,7 @@ function setup() {
     c.style('height', 'auto');
     c.style('width', '100%');
 
+    document.querySelector('#debug_text').innerHTML = `${navigator.userAgent}\n`;
     if (navigator.userAgent.indexOf('iPhone') > 0 ||
         navigator.userAgent.indexOf('iPod') > 0 ||
         (navigator.userAgent.indexOf('Android') > 0 &&
