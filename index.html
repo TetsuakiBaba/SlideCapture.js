@@ -1,3 +1,10 @@
+<script>
+    let version = `
+  last modified: 2024/07/28 22:03:07
+  `;
+    // versionから 改行を削除
+    version = version.replace(/\n/g, "");
+</script>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 
@@ -38,28 +45,37 @@
         <hr>
         <footer>
             <p class="small text-muted text-center">
-                &copy; 2024 Tetsuaki BABA
+                &copy; 2024 Tetsuaki BABA<br><span id="version_date"></span>
             </p>
         </footer>
     </div>
 
     <script>
-        navigator.mediaDevices.enumerateDevices().then(devices => {
-            const videoSelect = document.getElementById('videoSource');
-            devices.forEach(device => {
-                if (device.kind === 'videoinput') {
-                    const option = document.createElement('option');
-                    option.value = device.deviceId;
-                    option.text = device.label || `Camera ${videoSelect.length + 1}`;
-                    videoSelect.appendChild(option);
 
 
-                    // もしlocalStorageに保存されているdeviceIdと同じであれば selected にする
-                    if (localStorage.getItem('slidecapture.deviceId') === device.deviceId) {
-                        option.selected = true;
+        // domが読み込まれたら
+        document.addEventListener('DOMContentLoaded', () => {
+            navigator.mediaDevices.enumerateDevices().then(devices => {
+                const videoSelect = document.getElementById('videoSource');
+                devices.forEach(device => {
+                    if (device.kind === 'videoinput') {
+                        const option = document.createElement('option');
+                        option.value = device.deviceId;
+                        option.text = device.label || `Camera ${videoSelect.length + 1}`;
+                        videoSelect.appendChild(option);
+
+
+                        // もしlocalStorageに保存されているdeviceIdと同じであれば selected にする
+                        if (localStorage.getItem('slidecapture.deviceId') === device.deviceId) {
+                            option.selected = true;
+                        }
                     }
-                }
+                });
             });
+
+            // versionを表示
+            document.getElementById('version_date').textContent = version;
+
         });
     </script>
 </body>
