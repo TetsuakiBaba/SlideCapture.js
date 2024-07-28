@@ -23,7 +23,6 @@ function setup() {
         c.touchMoved(mouseDragged);
         c.touchEnded(mouseReleased);
         disable_scroll();
-        is_pc = false;
     } else if (navigator.userAgent.indexOf('iPad') > 0 ||
         navigator.userAgent.indexOf('Android') > 0) {
         //タブレット用の処理
@@ -31,7 +30,6 @@ function setup() {
         c.touchMoved(mouseDragged);
         c.touchEnded(mouseReleased);
         disable_scroll();
-        is_pc = false;
     } else if (navigator.userAgent.indexOf('Safari') > 0 &&
         navigator.userAgent.indexOf('Chrome') == -1 &&
         typeof document.ontouchstart !== 'undefined') {
@@ -40,12 +38,10 @@ function setup() {
         c.touchMoved(mouseDragged);
         c.touchEnded(mouseReleased);
         disable_scroll();
-        is_pc = false;
     } else {
         c.mousePressed(mousePressed);
         c.mouseMoved(mouseDragged);
         c.mouseReleased(mouseReleased);
-        is_pc = true;
     }
 
 
@@ -67,6 +63,25 @@ function setup() {
     console.log(points);
 
     initVideo();
+}
+// スクロール禁止
+function disable_scroll() {
+    // PCでのスクロール禁止
+    document.addEventListener("mousewheel", scroll_control, { passive: false });
+    // スマホでのタッチ操作でのスクロール禁止
+    document.addEventListener("touchmove", scroll_control, { passive: false });
+}
+// スクロール禁止解除
+function enable_scroll() {
+    // PCでのスクロール禁止解除
+    document.removeEventListener("mousewheel", scroll_control, { passive: false });
+    // スマホでのタッチ操作でのスクロール禁止解除
+    document.removeEventListener('touchmove', scroll_control, { passive: false });
+}
+
+// スクロール関連メソッド
+function scroll_control(event) {
+    event.preventDefault();
 }
 
 function initVideo() {
