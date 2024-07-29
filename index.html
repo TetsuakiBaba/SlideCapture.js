@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/07/29 01:35:13
+  last modified: 2024/07/29 16:04:46
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homography Transformation with p5.js</title>
+    <title>SlideCapture.js</title>
     <link rel="manifest" href="manifest.json">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -32,21 +32,58 @@
             </div>
         </div>
         <div class="row" id="control_ui">
-            <div class="col-12">
-                <div class="input-group mb-3">
-                    <label class="input-group-text" for="videoSource"><i class="bi bi-camera-video"></i></label>
-                    <select class="form-select" id="videoSource"></select>
-                    <select class="form-select" id="aspect">
-                        <option class="form-select" value="0.625" selected>16:10</option>
-                        <option class="form-select" value="0.75">4:3</option>
-                        <option class="form-select" value="0.5625">16:9</option>
-                    </select>
 
-                    <button type="button" class="btn btn-primary" id="fullscreenButton" onclick="toggleFullScreen();"><i
-                            class="bi bi-fullscreen"></i></button>
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-gear"></i>
+                        Settings
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group mb-3">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                data-bs-target="#tutorial_modal">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            <label class="input-group-text" for="videoSource"><i class="bi bi-camera-video"></i></label>
+                            <button type="button" class="btn btn-primary" onclick="updateCameraList();"><i
+                                    class="bi bi-arrow-clockwise"></i></button>
+                            <select class="form-select" id="videoSource"></select>
+
+                            <label class="input-group-text">
+                                <i class="bi bi-aspect-ratio"></i>
+                            </label>
+                            <select class="form-select" id="aspect">
+                                <option class="form-select" value="fit" selected>Display fit</option>
+                                <option class="form-select" value="0.75">4:3</option>
+                                <option class="form-select" value="0.625">16:10</option>
+                                <option class="form-select" value="0.5625">16:9</option>
+                            </select>
+
+                            <button type="button" class="btn btn-primary" id="fullscreenButton"
+                                onclick="toggleFullScreen();"><i class="bi bi-fullscreen"></i></button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                Optional
+                            </div>
+                            <div class="card-body">
+                                <!-- 最初にtutorial modalが出ないようにする設定toggle -->
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="show_basic_tutorial" checked onchange="toggleShowBasicTutorial(this);">
+                                    <label class="form-check-label" for="show_basic_tutorial">Show the Tutorial Modal
+                                        when reloaded.</label>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-12" id="debug">
+            <div class="col-12" id="debug" hidden>
                 <textarea class="form-control" id="debug_text" rows="3" placeholder="Debug textarea"
                     readonly></textarea>
             </div>
@@ -60,13 +97,49 @@
         </footer>
     </div>
 
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="tutorial_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+        tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="tutorial_modalLabel">Basic Tutorial</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <ol>
+                                <li>赤い丸をスクリーンの4隅に合わせる</li>
+                                <li>画面をダブルタップ（クリック）すると全画面切替</li>
+                                <li>全画面をZOOMから画面共有する</li>
+                            </ol>
+                        </div>
+                        <div class="col-6">
+                            <ol>
+                                <li>Align the red circle with the corners of the screen.</li>
+                                <li>Double-tap/click the screen to toggle full screen.</li>
+                                <li>Share the full screen from ZOOM.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK, I'm ready.</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
 
-
-        // domが読み込まれたら
-        document.addEventListener('DOMContentLoaded', () => {
+        function updateCameraList() {
             navigator.mediaDevices.enumerateDevices().then(devices => {
-                const videoSelect = document.getElementById('videoSource');
+                let videoSelect = document.getElementById('videoSource');
+                videoSelect.innerHTML = '';
                 devices.forEach(device => {
                     if (device.kind === 'videoinput') {
                         const option = document.createElement('option');
@@ -82,12 +155,36 @@
                     }
                 });
             });
+        }
+        // domが読み込まれたら
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCameraList();
+
+
+
+            // localStrageに showBasicTutorialがあれば、tutorial_modalを表示
+            const showBasicTutorial = localStorage.getItem('slidecapture.showBasicTutorial');
+            if (showBasicTutorial === null || showBasicTutorial === 'true') {
+                const tutorial_modal = new bootstrap.Modal(document.getElementById('tutorial_modal'), {
+                    keyboard: false
+                });
+                tutorial_modal.show();
+            }
+            else {
+                document.getElementById('show_basic_tutorial').checked = false;
+            }
 
             // versionを表示
             document.getElementById('version_date').textContent = version;
 
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>

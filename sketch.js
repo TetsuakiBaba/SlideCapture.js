@@ -1,5 +1,6 @@
 let video;
 let videoSourceSelect;
+let previousFrame;
 let points = [];
 let draggingPoint = null;
 let homographyMode = false;
@@ -8,14 +9,27 @@ let active_number = -1;
 let is_pc = true;
 let p5canvas;
 
-function setup() {
-    transformedImage = createGraphics(1280, 720);
+let defaults = {
+    camera: {
+        width: 1280,
+        height: 720,
+        fps: 30
+    }
+}
 
-    let c = p5canvas = createCanvas(1280, 720);
+function setup() {
+    pixelDensity(1.0);
+    transformedImage = createGraphics(defaults.camera.width, defaults.camera.height);
+    let c = p5canvas = createCanvas(defaults.camera.width, defaults.camera.height);
+
+
+
+    frameRate(defaults.camera.fps);
     c.parent('p5canvas');
     // cを縦横比を固定して横幅100%表示にする
     c.style('height', 'auto');
     c.style('width', '100%');
+    c.doubleClicked(toggleFullScreen);
 
     document.querySelector('#debug_text').innerHTML = `${navigator.userAgent}\n`;
     if (navigator.userAgent.indexOf('iPhone') > 0 ||
@@ -68,8 +82,21 @@ function setup() {
     if (savedPoints) {
         points = JSON.parse(savedPoints);
     }
+    // もし取得したpointsがcanvasサイズからはみでていれば初期値に戻す
+    for (let i = 0; i < points.length; i++) {
+        if (points[i].x < 0 || points[i].x > width || points[i].y < 0 || points[i].y > height) {
+            points = [
+                { x: 500, y: 100 },
+                { x: 1180, y: 100 },
+                { x: 1180, y: 620 },
+                { x: 500, y: 620 }
+            ];
+            break;
+        }
+    }
 
     initVideo();
+
 
     // fullscreenchangeイベントを監視
     document.addEventListener('fullscreenchange', (event) => {
@@ -77,16 +104,27 @@ function setup() {
             homographyMode = false;
             document.querySelector('#control_ui').style.display = '';
         }
-        const aspect = parseFloat(document.querySelector('#aspect').value);
+        const aspect = getAspectRatio();
         if (homographyMode) {
-            resizeCanvas(1280, 1280 * aspect);
+            resizeCanvas(width, width * aspect);
         }
         else {
-            resizeCanvas(1280, 720);
+            resizeCanvas(defaults.camera.width, defaults.camera.height);
         }
         p5canvas.style('height', 'auto');
         p5canvas.style('width', '100%');
     });
+}
+
+function getAspectRatio() {
+    let aspect;
+    if (document.querySelector('#aspect').value == "fit") {
+        aspect = parseFloat(displayHeight / displayWidth);
+    }
+    else {
+        aspect = parseFloat(document.querySelector('#aspect').value);
+    }
+    return aspect;
 }
 // スクロール禁止
 function disable_scroll() {
@@ -117,9 +155,9 @@ function initVideo() {
         video: {
             deviceId: videoSourceSelect.value(),
             facingMode: "environment",
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-            frameRate: { ideal: 30 }
+            width: { ideal: defaults.camera.width },
+            height: { ideal: defaults.camera.height },
+            frameRate: { ideal: defaults.camera.fps }
         },
         audio: false
     };
@@ -136,9 +174,11 @@ function initVideo() {
 
 function draw() {
     background(0);
-    // videoに新しいフレームがある場合
-    if (video.loadedmetadata) {
 
+
+    // videoが読み込まれていれば
+    if (video.loadedmetadata) {
+        video.loadPixels();
         if (!homographyMode) {
             image(video, 0, 0, width, height);
 
@@ -152,47 +192,77 @@ function draw() {
             }
             endShape(CLOSE);
 
-            stroke(255, 0, 0);
-            strokeWeight(8);
+
             for (let i = 0; i < points.length; i++) {
+                stroke(255, 0, 0);
+                strokeWeight(8);
                 if (active_number == i) {
                     circle(points[i].x, points[i].y, 15);
                 }
                 else {
                     circle(points[i].x, points[i].y, 5);
                 }
+                noStroke();
+                fill(255);
+                text(i, points[i].x, points[i].y);
+                fill(255, 0, 0, 51); // 透明度20%
             }
-            tint(255, 200); // 半分の不透明度で表示
-            const aspect = parseFloat(document.querySelector('#aspect').value);
-            drawSlide(20, 20, width * 0.25, width * 0.25 * aspect);
+
+
+
+            tint(255, 160); // 半分の不透明度で表示
+            const aspect = getAspectRatio();
+
+            drawSlide(20, 20,
+                defaults.camera.width * 0.25,
+                defaults.camera.width * 0.25 * aspect);
             tint(255, 255);
             stroke(0, 255, 0);
             strokeWeight(2);
             rect(20, 20, width * .25, width * 0.25 * aspect);
+
             // 右上に "preview" の文字をいれる
-            fill(255);
-            noStroke();
             textSize(16);
             textAlign(RIGHT, TOP);
+            fill(255);
+            noStroke();
             text('preview', -5 + 20 + width * 0.25, 25);
 
+            // video.time()の値を画面右上にタイムコードとして表示。背景は黒、文字色は白とする
+            textSize(9);
+            textAlign(LEFT, TOP);
+            fill(255);
+            noStroke();
+            text(video.time().toFixed(2),
+                -5 + 30, 25);
+
         } else {
-            const aspect = parseFloat(document.querySelector('#aspect').value);
-            drawSlide(0, 0, width, width * aspect);
+            const aspect = getAspectRatio();
+            drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
+            // image(video, 0, 0, width / 4, height / 4);
         }
+
+
+
+
     }
+
+
 }
+
 
 function drawSlide(x, y, w, h) {
     let srcPoints = [
         { x: points[0].x, y: points[0].y },
         { x: points[1].x, y: points[1].y },
         { x: points[2].x, y: points[2].y },
-        { x: points[3].x, y: points[3].y }];
+        { x: points[3].x, y: points[3].y }
+    ];
     // points情報を localStorageに保存
     localStorage.setItem('slidecapture.points', JSON.stringify(srcPoints));
-    let img = rectifyImage(video.get(), srcPoints, 0, 0, video.width, video.height);
-    image(img.get(), x, y, w * 2, h * 2);
+    let img = rectifyImage(video, srcPoints, 0, 0, video.width, video.height);
+
+    image(img, x, y, w, h);
 }
 
 function cmousePressed(event) {
@@ -208,7 +278,7 @@ function cmousePressed(event) {
         mouseX = width * (event.touches[0].clientX - rect.left) / max.x;
         mouseY = height * (event.touches[0].clientY - rect.top) / max.y;
     }
-    console.log(mouseX, mouseY);
+
     // mouseX = event.touches[0].clientX;
     // mouseY = event.touches[0].clientY;
     for (let i = 0; i < points.length; i++) {
@@ -252,12 +322,14 @@ function rectifyImage(srcImg, p, x, y, w, h) {
     });
 
     // 生成画像のアスペクト比を決める
-    let w1 = Math.sqrt((p[0].x - p[1].x) ** 2 + (p[0].y - p[1].y) ** 2);
-    let h1 = Math.sqrt((p[1].x - p[2].x) ** 2 + (p[1].y - p[2].y) ** 2);
-    let w2 = Math.sqrt((p[2].x - p[3].x) ** 2 + (p[2].y - p[3].y) ** 2);
-    let h2 = Math.sqrt((p[3].x - p[0].x) ** 2 + (p[3].y - p[0].y) ** 2);
-    let maxWidth = Math.max(w1, w2);
-    let maxHeight = Math.max(h1, h2);
+    // let w1 = Math.sqrt((p[0].x - p[1].x) ** 2 + (p[0].y - p[1].y) ** 2);
+    // let h1 = Math.sqrt((p[1].x - p[2].x) ** 2 + (p[1].y - p[2].y) ** 2);
+    // let w2 = Math.sqrt((p[2].x - p[3].x) ** 2 + (p[2].y - p[3].y) ** 2);
+    // let h2 = Math.sqrt((p[3].x - p[0].x) ** 2 + (p[3].y - p[0].y) ** 2);
+    // let maxWidth = Math.max(w1, w2);
+    // let maxHeight = Math.max(h1, h2);
+    let maxWidth = defaults.camera.width;
+    let maxHeight = defaults.camera.height;
 
     let dstArr = [
         0, 0,
@@ -277,9 +349,11 @@ function rectifyImage(srcImg, p, x, y, w, h) {
 
     let imgData = new ImageData(new Uint8ClampedArray(dst.data), dst.cols, dst.rows);
     transformedImage.clear();
+    // transformedImage.resizeCanvas(imgData.width, imgData.height);
     transformedImage.drawingContext.putImageData(imgData, 0, 0);
-    transformedImage.width = imgData.width;
-    transformedImage.height = imgData.height;
+
+    // transformedImage.width = imgData.width;
+    // transformedImage.height = imgData.height;
 
 
     srcMat.delete();
@@ -306,11 +380,13 @@ function createMatrixFromPoints(points) {
 }
 
 
+function toggleShowBasicTutorial(dom) {
+    // dom.checkedをlocalStorageに保存
+    localStorage.setItem('slidecapture.showBasicTutorial', dom.checked);
+}
 
 function toggleFullScreen() {
     homographyMode = !homographyMode;
-
-
 
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
@@ -319,22 +395,20 @@ function toggleFullScreen() {
     }
 
 
-    const aspect = parseFloat(document.querySelector('#aspect').value);
+    const aspect = getAspectRatio();
     if (homographyMode) {
-        resizeCanvas(1280, 1280 * aspect);
+        resizeCanvas(defaults.camera.width, defaults.camera.width * aspect);
     }
     else {
-        resizeCanvas(1280, 720);
+        resizeCanvas(defaults.camera.width, defaults.camera.height);
     }
     p5canvas.style('height', 'auto');
     p5canvas.style('width', '100%');
 
-
-
-    if (homographyMode) {
-        document.querySelector('#control_ui').style.display = 'none';
-    }
-    else {
-        document.querySelector('#control_ui').style.display = '';
-    }
+    // if (homographyMode) {
+    //     document.querySelector('#control_ui').style.display = 'none';
+    // }
+    // else {
+    //     document.querySelector('#control_ui').style.display = '';
+    // }
 }
