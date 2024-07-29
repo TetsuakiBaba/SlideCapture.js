@@ -104,15 +104,7 @@ function setup() {
             homographyMode = false;
             document.querySelector('#control_ui').style.display = '';
         }
-        const aspect = getAspectRatio();
-        if (homographyMode) {
-            resizeCanvas(width, width * aspect);
-        }
-        else {
-            resizeCanvas(defaults.camera.width, defaults.camera.height);
-        }
-        p5canvas.style('height', 'auto');
-        p5canvas.style('width', '100%');
+        resetPosition();
     });
 }
 
@@ -432,7 +424,10 @@ function toggleFullScreen() {
         document.exitFullscreen();
     }
 
+    resetPosition();
+}
 
+function resetPosition() {
     const aspect = getAspectRatio();
     if (homographyMode) {
         resizeCanvas(defaults.camera.width, defaults.camera.width * aspect);
