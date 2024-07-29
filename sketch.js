@@ -71,6 +71,7 @@ function setup() {
     videoSourceSelect.changed(initVideo);
 
 
+    resetCornerPoints();
     // もしlocalStorageにpoints情報があればそれを使う
     let savedPoints = localStorage.getItem('slidecapture.points');
     if (savedPoints) {
