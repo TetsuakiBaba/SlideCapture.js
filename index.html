@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/07/29 22:33:08
+  last modified: 2024/07/29 23:04:06
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -27,68 +27,85 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-12 mb-3" style="margin:0;padding:0;">
-                <div id="p5canvas"></div>
-            </div>
-        </div>
-        <div class="row" id="control_ui">
-
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="bi bi-gear"></i>
-                        Settings
-                    </div>
-                    <div class="card-body">
-                        <div id="zoom_ui"></div>
-                        <div class="input-group mb-3">
-                            <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal"
-                                data-bs-target="#tutorial_modal">
-                                <i class="bi bi-info-circle"></i>
-                            </button>
-                            <label class="input-group-text" for="videoSource"><i class="bi bi-camera-video"></i></label>
-                            <button type="button" class="btn btn-primary" onclick="updateCameraList();"><i
-                                    class="bi bi-arrow-clockwise"></i></button>
-                            <select class="form-select" id="videoSource"></select>
-
-                            <label class="input-group-text">
-                                <i class="bi bi-aspect-ratio"></i>
-                            </label>
-                            <select class="form-select" id="aspect">
-                                <option class="form-select" value="fit" selected>Display fit</option>
-                                <option class="form-select" value="0.75">4:3</option>
-                                <option class="form-select" value="0.625">16:10</option>
-                                <option class="form-select" value="0.5625">16:9</option>
-                            </select>
-
-                            <button type="button" class="btn btn-primary" id="fullscreenButton"
-                                onclick="toggleFullScreen();"><i class="bi bi-fullscreen"></i></button>
-                        </div>
-
+            <div class="col-4 mt-3" id="control_ui">
+                <div class="row">
+                    <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                Optional
+                                <i class="bi bi-gear"></i>
+                                Settings
                             </div>
                             <div class="card-body">
-                                <!-- 最初にtutorial modalが出ないようにする設定toggle -->
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" role="switch"
-                                        id="show_basic_tutorial" checked onchange="toggleShowBasicTutorial(this);">
-                                    <label class="form-check-label" for="show_basic_tutorial">Show the Tutorial Modal
-                                        when reloaded.</label>
+                                <div class="input-group mb-3">
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                        data-bs-target="#tutorial_modal">
+                                        <i class="bi bi-info-circle"></i>
+                                    </button>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <label class="input-group-text" for="videoSource"><i
+                                            class="bi bi-camera-video"></i></label>
+
+                                    <select class="form-select" id="videoSource"></select>
+                                    <button type="button" class="btn btn-primary" onclick="updateCameraList();"><i
+                                            class="bi bi-arrow-clockwise"></i></button>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <label class="input-group-text">
+                                        <i class="bi bi-aspect-ratio"></i>
+                                    </label>
+                                    <select class="form-select" id="aspect">
+                                        <option class="form-select" value="fit" selected>Display fit</option>
+                                        <option class="form-select" value="0.75">4:3</option>
+                                        <option class="form-select" value="0.625">16:10</option>
+                                        <option class="form-select" value="0.5625">16:9</option>
+                                    </select>
+
+                                    <button type="button" class="btn btn-primary" id="fullscreenButton"
+                                        onclick="toggleFullScreen();"><i class="bi bi-fullscreen"></i></button>
                                 </div>
 
+                                <div class="card">
+                                    <div class="card-header">
+                                        Optional
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- 最初にtutorial modalが出ないようにする設定toggle -->
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch"
+                                                id="show_basic_tutorial" checked
+                                                onchange="toggleShowBasicTutorial(this);">
+                                            <label class="form-check-label" for="show_basic_tutorial">Show the Tutorial
+                                                Modal
+                                                when reloaded.</label>
+                                        </div>
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-12" id="debug" hidden>
+                        <textarea class="form-control" id="debug_text" rows="3" placeholder="Debug textarea"
+                            readonly></textarea>
                     </div>
                 </div>
             </div>
-            <div class="col-12" id="debug" hidden>
-                <textarea class="form-control" id="debug_text" rows="3" placeholder="Debug textarea"
-                    readonly></textarea>
+            <div class="col-8 mb-3" id="canvasholder" style="margin:0;padding:0;">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <i class="bi bi-camera-video"></i>
+                        Camera
+                    </div>
+                    <div class="card-body" id="canvasholder_settings">
+                        <div id="p5canvas"></div>
+                        <div id="zoom_ui" class=""></div>
+                    </div>
+                </div>
             </div>
         </div>
+
 
         <hr>
         <footer>

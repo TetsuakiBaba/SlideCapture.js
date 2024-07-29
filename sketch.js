@@ -177,8 +177,8 @@ function initVideo() {
         let settings = videoTrack.getSettings();
         let capabilities = stream.getVideoTracks()[0].getCapabilities();
         // ズーム機能を表示したいときには下のコメントを外してデバッグする
-        capabilities.zoom = { min: 1, max: 10, step: 0.1 };
-        settings.zoom = 5;
+        // capabilities.zoom = { min: 1, max: 10, step: 0.1 };
+        // settings.zoom = 5;
         if (capabilities.zoom) {
             if (!capabilities.zoom.step) {
                 capabilities.zoom.step = 0.1;
@@ -443,10 +443,17 @@ function toggleFullScreen() {
     p5canvas.style('height', 'auto');
     p5canvas.style('width', '100%');
 
-    // if (homographyMode) {
-    //     document.querySelector('#control_ui').style.display = 'none';
-    // }
-    // else {
-    //     document.querySelector('#control_ui').style.display = '';
-    // }
+    if (homographyMode) {
+        document.querySelector('#control_ui').style.display = 'none';
+        // #canvasholder の classを col-8からcol-12に変更
+        document.querySelector('#canvasholder').classList.remove('col-8');
+        document.querySelector('#canvasholder').classList.add('col-12');
+        document.querySelector('#canvasholder').insertBefore(document.querySelector('#p5canvas'), document.querySelector('#canvasholder').firstChild);
+    }
+    else {
+        document.querySelector('#control_ui').style.display = '';
+        document.querySelector('#canvasholder').classList.remove('col-12');
+        document.querySelector('#canvasholder').classList.add('col-8');
+        document.querySelector('#canvasholder_settings').appendChild(document.querySelector('#p5canvas'));
+    }
 }
