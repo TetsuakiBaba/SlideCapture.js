@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/07/30 00:21:10
+  last modified: 2024/07/30 08:18:08
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -125,7 +125,8 @@
     <!-- Modal -->
     <div class="modal fade" id="tutorial_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
         tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" data-bs-backdrop="static"
+            data-bs-keyboard="false">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5 fw-bold" id="tutorial_modalLabel">Basic Tutorial</h1>
@@ -213,6 +214,14 @@
             else {
                 document.getElementById('show_basic_tutorial').checked = false;
             }
+
+            // modalが閉じられたときと、表示されたときに呼び出される関数
+            document.getElementById('tutorial_modal').addEventListener('hidden.bs.modal', () => {
+                disable_scroll();
+            });
+            document.getElementById('tutorial_modal').addEventListener('shown.bs.modal', () => {
+                enable_scroll();
+            });
 
             // versionを表示
             document.getElementById('version_date').textContent = version;

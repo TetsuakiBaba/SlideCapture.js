@@ -125,6 +125,7 @@ function getAspectRatio() {
 }
 // スクロール禁止
 function disable_scroll() {
+
     // PCでのスクロール禁止
     document.addEventListener("mousewheel", scroll_control, { passive: false });
     // スマホでのタッチ操作でのスクロール禁止
@@ -132,6 +133,7 @@ function disable_scroll() {
 }
 // スクロール禁止解除
 function enable_scroll() {
+
     // PCでのスクロール禁止解除
     document.removeEventListener("mousewheel", scroll_control, { passive: false });
     // スマホでのタッチ操作でのスクロール禁止解除
