@@ -119,7 +119,12 @@ function setup() {
 function getAspectRatio() {
     let aspect;
     if (document.querySelector('#aspect').value == "fit") {
-        aspect = parseFloat(displayHeight / displayWidth);
+        if (displayWidth > displayHeight) {
+            aspect = parseFloat(displayHeight / displayWidth);
+        }
+        else {
+            aspect = parseFloat(displayWidth / displayHeight);
+        }
     }
     else {
         aspect = parseFloat(document.querySelector('#aspect').value);
@@ -165,9 +170,42 @@ function initVideo() {
     // deviceidをlocalStorageに保存
     localStorage.setItem('slidecapture.deviceId', videoSourceSelect.value());
 
-    video = createCapture(constraints, () => {
+    video = createCapture(constraints, (stream) => {
         video.hide();
+        console.log(stream.getVideoTracks()[0].getCapabilities());
+        let videoTrack = stream.getVideoTracks()[0];
+        let settings = videoTrack.getSettings();
+        let capabilities = stream.getVideoTracks()[0].getCapabilities();
+        // ズーム機能を表示したいときには下のコメントを外してデバッグする
+        capabilities.zoom = { min: 1, max: 10, step: 0.1 };
+        settings.zoom = 5;
+        if (capabilities.zoom) {
+            if (!capabilities.zoom.step) {
+                capabilities.zoom.step = 0.1;
+            }
+            document.getElementById('zoom_ui').innerHTML = `
+            <div class="row mt-2 mb-2">
+                <div class="col-2 text-end fs-4">
+                    <i class="bi bi-zoom-out"></i>
+                </div>  
+                <div class="col-8 text-center">
+                    <input type="range" class="form-range" min="${capabilities.zoom.min}" max="${capabilities.zoom.max}" value="${settings.zoom}" step="${capabilities.zoom.step}" id="zoom_ui_input">
+                </div>
+                <div class="col-2 text-start fs-4">
+                    <i class="bi bi-zoom-in"></i>
+                </div>
+            </div>
+            `;
+            document.getElementById('zoom_ui_input').addEventListener('input', (event) => {
+                videoTrack.applyConstraints({ advanced: [{ zoom: parseFloat(event.target.value) }] });
+            });
+        }
     });
+
+    // もしvideoにzoomがあれば、zoomの調整が可能なrange inputを設定する
+    // const capabilities = video.getVideoTracks()[0].getCapabilities();
+
+
 
 
 }
