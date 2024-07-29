@@ -154,7 +154,7 @@ function initVideo() {
     let constraints = {
         video: {
             deviceId: videoSourceSelect.value(),
-            facingMode: "environment",
+            facingMode: { ideal: "environment" },
             width: { ideal: defaults.camera.width },
             height: { ideal: defaults.camera.height },
             frameRate: { ideal: defaults.camera.fps }

@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/07/29 16:04:46
+  last modified: 2024/07/29 22:19:24
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -159,8 +159,6 @@
         // domが読み込まれたら
         document.addEventListener('DOMContentLoaded', () => {
             updateCameraList();
-
-
 
             // localStrageに showBasicTutorialがあれば、tutorial_modalを表示
             const showBasicTutorial = localStorage.getItem('slidecapture.showBasicTutorial');
