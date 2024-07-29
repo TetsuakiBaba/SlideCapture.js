@@ -9,7 +9,7 @@
 
 
 ## 利用方法
-![teaser](./teaser.gif)
+
 Photo by Mikael Blomkvist: https://www.pexels.com/ja-jp/photo/6476776/
 
 利用には主に2つの方法があります。

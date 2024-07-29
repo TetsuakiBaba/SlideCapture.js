@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/07/29 23:04:06
+  last modified: 2024/07/30 00:21:10
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -38,9 +38,9 @@
                             <div class="card-body">
                                 <div class="input-group mb-3">
                                     <!-- Button trigger modal -->
-                                    <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
                                         data-bs-target="#tutorial_modal">
-                                        <i class="bi bi-info-circle"></i>
+                                        <i class="bi bi-info-circle"></i> Basic Tutorial
                                     </button>
                                 </div>
                                 <div class="input-group mb-3">
@@ -72,7 +72,7 @@
                                     </div>
                                     <div class="card-body">
                                         <!-- 最初にtutorial modalが出ないようにする設定toggle -->
-                                        <div class="form-check form-switch">
+                                        <div class="form-check form-switch mb-3">
                                             <input class="form-check-input" type="checkbox" role="switch"
                                                 id="show_basic_tutorial" checked
                                                 onchange="toggleShowBasicTutorial(this);">
@@ -80,6 +80,10 @@
                                                 Modal
                                                 when reloaded.</label>
                                         </div>
+
+                                        <button type="button" class="btn btn-sm btn-danger"
+                                            onclick="resetCornerPoints();">
+                                            <i class="bi bi-x-circle"></i> Reset Corner Points
 
                                     </div>
                                 </div>
@@ -124,24 +128,44 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="tutorial_modalLabel">Basic Tutorial</h1>
+                    <h1 class="modal-title fs-5 fw-bold" id="tutorial_modalLabel">Basic Tutorial</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <video src="tutorial.mp4" controls autoplay loop playsinline class="img-fluid"></video>
                     <div class="row">
                         <div class="col-6">
-                            <ol>
-                                <li>赤い丸をスクリーンの4隅に合わせる</li>
-                                <li>画面をダブルタップ（クリック）すると全画面切替</li>
-                                <li>全画面をZOOMから画面共有する</li>
+                            <ol class="list-group list-group-flush list-group-numbered">
+                                <li class="list-group-item">赤い丸をスクリーンの4隅に合わせる</li>
+                                <li class="list-group-item">画面をダブルタップ（クリック）すると全画面切替</li>
+                                <li class="list-group-item">全画面をZOOMから画面共有する</li>
                             </ol>
+
+                            <div class="small mt-3">
+                                注意事項
+                                <ul>
+                                    <li>iOSスマートフォンでは利用できません</li>
+                                    <li>カメラは横向きのみに対応しています</li>
+                                    <li>使用するカメラによっては、カメラ映像下にZOOM UIが表示されます</li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="col-6">
-                            <ol>
-                                <li>Align the red circle with the corners of the screen.</li>
-                                <li>Double-tap/click the screen to toggle full screen.</li>
-                                <li>Share the full screen from ZOOM.</li>
+                            <ol class="list-group list-group-flush list-group-numbered">
+                                <li class="list-group-item">Align the red circles with the corners of the screen.</li>
+                                <li class="list-group-item">Double-tap/click the screen to toggle full screen.</li>
+                                <li class="list-group-item">Share the full screen from ZOOM.</li>
                             </ol>
+                            <div class="small mt-3">
+                                Notes
+                                <ul>
+                                    <li>Not available on iOS smartphones, due to iOS Safari does not allow fullscreen
+                                        request function. </li>
+                                    <li>Only horizontal camera is supported</li>
+                                    <li>Depending on the camera used, the ZOOM UI may be displayed below the camera
+                                        image.</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>

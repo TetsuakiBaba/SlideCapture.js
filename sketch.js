@@ -70,13 +70,7 @@ function setup() {
     videoSourceSelect = select('#videoSource');
     videoSourceSelect.changed(initVideo);
 
-    // デフォルトの4点をランダムにしないで設定
-    points = [
-        { x: 500, y: 100 },
-        { x: 1180, y: 100 },
-        { x: 1180, y: 620 },
-        { x: 500, y: 620 }
-    ];
+
     // もしlocalStorageにpoints情報があればそれを使う
     let savedPoints = localStorage.getItem('slidecapture.points');
     if (savedPoints) {
@@ -85,12 +79,7 @@ function setup() {
     // もし取得したpointsがcanvasサイズからはみでていれば初期値に戻す
     for (let i = 0; i < points.length; i++) {
         if (points[i].x < 0 || points[i].x > width || points[i].y < 0 || points[i].y > height) {
-            points = [
-                { x: 500, y: 100 },
-                { x: 1180, y: 100 },
-                { x: 1180, y: 620 },
-                { x: 500, y: 620 }
-            ];
+            resetCornerPoints();
             break;
         }
     }
@@ -106,6 +95,16 @@ function setup() {
         }
         resetPosition();
     });
+}
+
+function resetCornerPoints() {
+    // デフォルトの4点をランダムにしないで設定
+    points = [
+        { x: defaults.camera.width / 2 - 200, y: defaults.camera.height / 2 - 200 },
+        { x: defaults.camera.width / 2 + 200, y: defaults.camera.height / 2 - 200 },
+        { x: defaults.camera.width / 2 + 200, y: defaults.camera.height / 2 + 200 },
+        { x: defaults.camera.width / 2 - 200, y: defaults.camera.height / 2 + 200 }
+    ];
 }
 
 function getAspectRatio() {
