@@ -454,6 +454,7 @@ function toggleFullScreen() {
         document.querySelector('#control_ui').style.display = '';
         document.querySelector('#canvasholder').classList.remove('col-12');
         document.querySelector('#canvasholder').classList.add('col-8');
-        document.querySelector('#canvasholder_settings').appendChild(document.querySelector('#p5canvas'));
+        document.querySelector('#canvasholder_settings').insertBefore(document.querySelector('#p5canvas'),
+            document.querySelector('#canvasholder_settings').firstChild);
     }
 }
