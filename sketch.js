@@ -17,6 +17,26 @@ let defaults = {
     }
 }
 
+let display_mode = 'DEFAULT';
+let preview_position = 'LEFT_TOP';
+function movePreviewPosition() {
+    if (display_mode == 'DEFAULT') {
+        if (preview_position == 'LEFT_TOP') {
+            preview_position = 'RIGHT_TOP';
+        }
+        else if (preview_position == 'RIGHT_TOP') {
+            preview_position = 'RIGHT_BOTTOM';
+        }
+        else if (preview_position == 'RIGHT_BOTTOM') {
+            preview_position = 'LEFT_BOTTOM';
+        }
+        else {
+            preview_position = 'LEFT_TOP';
+        }
+    }
+}
+
+
 function setup() {
     pixelDensity(1.0);
     transformedImage = createGraphics(defaults.camera.width, defaults.camera.height);
@@ -92,6 +112,7 @@ function setup() {
     document.addEventListener('fullscreenchange', (event) => {
         if (!document.fullscreenElement) {
             homographyMode = false;
+            display_mode = 'DEFAULT';
             document.querySelector('#control_ui').style.display = '';
         }
         resetPosition();
@@ -206,12 +227,10 @@ function initVideo() {
 
 function draw() {
     background(0);
-
-
     // videoが読み込まれていれば
     if (video.loadedmetadata) {
         video.loadPixels();
-        if (!homographyMode) {
+        if (display_mode == 'DEFAULT') {
             image(video, 0, 0, width, height);
 
             // 矩形領域の塗りつぶしを透明度20%に設定
@@ -240,35 +259,55 @@ function draw() {
                 fill(255, 0, 0, 51); // 透明度20%
             }
 
-
-
-            tint(255, 160); // 半分の不透明度で表示
+            tint(255, 255); // 半分の不透明度で表示
             const aspect = getAspectRatio();
 
-            drawSlide(20, 20,
-                defaults.camera.width * 0.25,
-                defaults.camera.width * 0.25 * aspect);
+            let preview_pos = {
+                x: 20,
+                y: 20,
+                w: defaults.camera.width * .25,
+                h: defaults.camera.width * 0.25 * aspect
+            };
+
+            if (preview_position == 'LEFT_TOP') {
+                preview_pos = {
+                    x: 20, y: 20,
+                    w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect
+                };
+            }
+            else if (preview_position == 'RIGHT_TOP') {
+                preview_pos = { x: width - 20 - defaults.camera.width * .25, y: 20, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
+            }
+            else if (preview_position == 'RIGHT_BOTTOM') {
+                preview_pos = { x: width - 20 - defaults.camera.width * .25, y: height - 20 - defaults.camera.width * 0.25 * aspect, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
+            }
+            else {
+                preview_pos = { x: 20, y: height - 20 - defaults.camera.width * 0.25 * aspect, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
+            }
+
+            drawSlide(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
+
             tint(255, 255);
             stroke(0, 255, 0);
             strokeWeight(2);
-            rect(20, 20, width * .25, width * 0.25 * aspect);
+            rect(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
 
             // 右上に "preview" の文字をいれる
             textSize(16);
             textAlign(RIGHT, TOP);
             fill(255);
             noStroke();
-            text('preview', -5 + 20 + width * 0.25, 25);
+            text('preview', preview_pos.x + preview_pos.w - 5, preview_pos.y + 5);
 
             // video.time()の値を画面右上にタイムコードとして表示。背景は黒、文字色は白とする
             textSize(9);
             textAlign(LEFT, TOP);
             fill(255);
             noStroke();
-            text(video.time().toFixed(2),
-                -5 + 30, 25);
+            text(video.time().toFixed(2), preview_pos.x + 5, preview_pos.y + 5);
 
-        } else {
+        }
+        else {
             const aspect = getAspectRatio();
             drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
             // image(video, 0, 0, width / 4, height / 4);
@@ -420,6 +459,13 @@ function toggleShowBasicTutorial(dom) {
 function toggleFullScreen() {
     homographyMode = !homographyMode;
 
+    if (display_mode != 'FULLSCREEN') {
+        display_mode = 'FULLSCREEN';
+    }
+    else {
+        display_mode = 'DEFAULT';
+    }
+
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
     } else if (document.exitFullscreen) {
@@ -431,7 +477,7 @@ function toggleFullScreen() {
 
 function resetPosition() {
     const aspect = getAspectRatio();
-    if (homographyMode) {
+    if (display_mode == 'FULLSCREEN') {
         resizeCanvas(defaults.camera.width, defaults.camera.width * aspect);
     }
     else {
@@ -440,18 +486,20 @@ function resetPosition() {
     p5canvas.style('height', 'auto');
     p5canvas.style('width', '100%');
 
-    if (homographyMode) {
+    if (display_mode == 'FULLSCREEN') {
         document.querySelector('#control_ui').style.display = 'none';
         // #canvasholder の classを col-8からcol-12に変更
-        document.querySelector('#canvasholder').classList.remove('col-8');
+        document.querySelector('#canvasholder').classList.remove('col-xs-12', 'col-sm-8');
         document.querySelector('#canvasholder').classList.add('col-12');
         document.querySelector('#canvasholder').insertBefore(document.querySelector('#p5canvas'), document.querySelector('#canvasholder').firstChild);
+        document.querySelector('#canvasholder').style.cssText = 'margin:0px;padding:0px;';
     }
     else {
         document.querySelector('#control_ui').style.display = '';
         document.querySelector('#canvasholder').classList.remove('col-12');
-        document.querySelector('#canvasholder').classList.add('col-8');
+        document.querySelector('#canvasholder').classList.add('col-xs-12', 'col-sm-8');
         document.querySelector('#canvasholder_settings').insertBefore(document.querySelector('#p5canvas'),
             document.querySelector('#canvasholder_settings').firstChild);
+        document.querySelector('#canvasholder').style.cssText = '';
     }
 }

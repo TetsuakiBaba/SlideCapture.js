@@ -27,3 +27,5 @@ secrets.json
 *.bak
 *.swp
 *.~
+
+*.ignore.*

@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/07/30 08:26:13
+  last modified: 2024/07/30 16:42:53
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -27,7 +27,7 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-4 mt-3" id="control_ui">
+            <div class="col-xs-12 col-sm-4 mt-3" id="control_ui">
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
@@ -36,13 +36,17 @@
                                 Settings
                             </div>
                             <div class="card-body">
-                                <div class="input-group mb-3">
-                                    <!-- Button trigger modal -->
-                                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
-                                        data-bs-target="#tutorial_modal">
-                                        <i class="bi bi-info-circle"></i> Basic Tutorial
-                                    </button>
-                                </div>
+
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-sm btn-success mb-3 me-2" data-bs-toggle="modal"
+                                    data-bs-target="#tutorial_modal">
+                                    <i class="bi bi-info-circle"></i> Basic Tutorial
+                                </button>
+
+                                <button type="button" class="btn btn-sm btn-primary mb-3" onclick="toggleFullScreen();">
+                                    <i class="bi bi-fullscreen"></i> Full Screen
+                                </button>
+
                                 <div class="input-group mb-3">
                                     <label class="input-group-text" for="videoSource"><i
                                             class="bi bi-camera-video"></i></label>
@@ -62,8 +66,8 @@
                                         <option class="form-select" value="0.5625">16:9</option>
                                     </select>
 
-                                    <button type="button" class="btn btn-primary" id="fullscreenButton"
-                                        onclick="toggleFullScreen();"><i class="bi bi-fullscreen"></i></button>
+                                    <button type="button" class="btn btn-primary" onclick="movePreviewPosition();"><i
+                                            class="bi bi-microsoft"></i></button>
                                 </div>
 
                                 <div class="card">
@@ -76,9 +80,8 @@
                                             <input class="form-check-input" type="checkbox" role="switch"
                                                 id="show_basic_tutorial" checked
                                                 onchange="toggleShowBasicTutorial(this);">
-                                            <label class="form-check-label" for="show_basic_tutorial">Show the Tutorial
-                                                Modal
-                                                when reloaded.</label>
+                                            <label class="form-check-label" for="show_basic_tutorial">
+                                                Auto Tutorial Modal</label>
                                         </div>
 
                                         <button type="button" class="btn btn-sm btn-danger"
@@ -96,7 +99,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-8 mb-3" id="canvasholder" style="margin:0;padding:0;">
+            <div class="col-xs-12 col-sm-8 mb-3" id="canvasholder">
                 <div class="card mt-3">
                     <div class="card-header">
                         <i class="bi bi-camera-video"></i>
@@ -109,11 +112,11 @@
                 </div>
             </div>
         </div>
-
-
         <hr>
         <footer>
             <p class="small text-muted text-center">
+                <a href="https://github.com/TetsuakiBaba/SlideCapture.js" class="link-info"
+                    style="text-decoration:none;" target="_blank"> SlideCapture.js on <i class="bi-github"></i></a><br>
                 &copy; 2024 Tetsuaki BABA<br><span id="version_date"></span>
             </p>
         </footer>
@@ -133,7 +136,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <video src="tutorial.mp4" controls autoplay playsinline class="img-fluid"></video>
+                    <video src="tutorial.mp4" poster="poster.png" controls playsinline class="img-fluid"></video>
                     <div class="row">
                         <div class="col-6">
                             <ol class="list-group list-group-flush list-group-numbered">
