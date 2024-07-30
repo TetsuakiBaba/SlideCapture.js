@@ -61,7 +61,7 @@ function setup() {
         disable_scroll();
         is_pc = false;
     }
-    else if (avigator.userAgent.indexOf('iPhone') > 0 ||
+    else if (navigator.userAgent.indexOf('iPhone') > 0 ||
         navigator.userAgent.indexOf('iPod') > 0) {
         alert('iPhoneではフルスクリーンAPIの制約により正しく動作しません。iPadやAndroid等をご利用ください。iPhone is not supported due to the limitation of the Fullscreen API, please use iPad or Android.');
         is_pc = false;
