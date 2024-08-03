@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/08/03 15:53:45
+  last modified: 2024/08/04 02:56:19
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -70,7 +70,8 @@ https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.min.js
                                         <option class="form-select" value="0.625">16:10</option>
                                         <option class="form-select" value="0.5625">16:9</option>
                                     </select>
-
+                                    <button type="button" class="btn btn-primary" id="button_preview_eye"
+                                        onclick="toggleShowPreview(this);"><i class="bi bi-eye"></i></button>
                                     <button type="button" class="btn btn-primary" onclick="movePreviewPosition();"><i
                                             class="bi bi-microsoft"></i></button>
                                 </div>
@@ -88,7 +89,13 @@ https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.min.js
                                             <label class="form-check-label" for="show_basic_tutorial">
                                                 Auto Tutorial Modal</label>
                                         </div>
-
+                                        <button id="button_open_fullscreen_ui_window" type="button"
+                                            class="btn btn-sm btn-secondary"
+                                            onclick="window.open('./controller.html', '_blank')">
+                                            <i class="bi bi-window-plus"></i>
+                                            Open Fullscreen UI window
+                                        </button>
+                                        <hr>
                                         <button type="button" class="btn btn-sm btn-danger"
                                             onclick="resetCornerPoints();">
                                             <i class="bi bi-x-circle"></i> Reset Corner Points
@@ -108,7 +115,7 @@ https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.min.js
                 <div class="card mt-3">
                     <div class="card-header">
                         <i class="bi bi-camera-video"></i>
-                        Camera
+                        Work view
                     </div>
                     <div class="card-body" id="canvasholder_settings">
                         <div id="p5canvas"></div>
@@ -235,6 +242,19 @@ https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.min.js
             document.getElementById('version_date').textContent = version;
 
         });
+
+        function toggleShowPreview(dom) {
+            // もし domのinnerHTMLに <i class="bi bi-eye"></i> があれば、<i class="bi bi-eye-slash"></i>に入れ替える。またその逆も行う
+            if (dom.innerHTML.includes('<i class="bi bi-eye"></i>')) {
+                dom.innerHTML = '<i class="bi bi-eye-slash"></i>';
+                is_show_preview = false;
+            }
+            else {
+                dom.innerHTML = '<i class="bi bi-eye"></i>';
+                is_show_preview = true;
+            }
+
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"

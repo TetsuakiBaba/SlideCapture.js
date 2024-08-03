@@ -2,6 +2,8 @@ let video;
 let videoSourceSelect;
 let previousFrame;
 let points = [];
+let pip_points = [];
+let pip_bb;
 let draggingPoint = null;
 let homographyMode = false;
 let transformedImage;
@@ -20,6 +22,8 @@ let defaults = {
 
 let is_show_text = false;
 let is_black_screen = false;
+let is_show_preview = true;
+let pinp_scale = 1.0;
 let text_message = '';
 
 let fullscreen_mode = 'SCREEN';// SCREEN, CAMERA, SCREEN_CAMERA
@@ -98,6 +102,9 @@ function setup() {
         is_pc = true;
     }
 
+    if (!is_pc) {
+        document.querySelector('#button_open_fullscreen_ui_window').style.display = 'none';
+    }
 
     videoSourceSelect = select('#videoSource');
     videoSourceSelect.changed(initVideo);
@@ -199,7 +206,6 @@ function initVideo() {
 
     video = createCapture(constraints, (stream) => {
         video.hide();
-        console.log(stream.getVideoTracks()[0].getCapabilities());
         let videoTrack = stream.getVideoTracks()[0];
         let settings = videoTrack.getSettings();
         let capabilities = stream.getVideoTracks()[0].getCapabilities();
@@ -235,49 +241,44 @@ function initVideo() {
 
 function draw() {
     background(0);
-    if (is_black_screen) {
-        fill(0);
-        rectMode(CORNER, CORNER);
-        rect(0, 0, width, height);
 
-    }
-    else {
-        // videoが読み込まれていれば
-        if (video.loadedmetadata) {
-            video.loadPixels();
-            if (display_mode == 'DEFAULT') {
-                image(video, 0, 0, width, height);
+    // videoが読み込まれていれば
+    if (video.loadedmetadata) {
+        video.loadPixels();
+        if (display_mode == 'DEFAULT') {
+            image(video, 0, 0, width, height);
 
-                // 矩形領域の塗りつぶしを透明度20%に設定
+            // 矩形領域の塗りつぶしを透明度20%に設定
+            fill(255, 0, 0, 51); // 透明度20%
+            textSize(16);
+            stroke(0, 255, 0);
+            strokeWeight(2);
+            beginShape();
+            for (let i = 0; i < points.length; i++) {
+                vertex(points[i].x, points[i].y);
+            }
+            endShape(CLOSE);
+
+
+            for (let i = 0; i < points.length; i++) {
+                stroke(255, 0, 0);
+                strokeWeight(8);
+                if (active_number == i) {
+                    circle(points[i].x, points[i].y, 15);
+                }
+                else {
+                    circle(points[i].x, points[i].y, 5);
+                }
+                noStroke();
+                fill(255);
+                text(i, points[i].x, points[i].y);
                 fill(255, 0, 0, 51); // 透明度20%
-                textSize(16);
-                stroke(0, 255, 0);
-                strokeWeight(2);
-                beginShape();
-                for (let i = 0; i < points.length; i++) {
-                    vertex(points[i].x, points[i].y);
-                }
-                endShape(CLOSE);
+            }
 
+            tint(255, 255); // 半分の不透明度で表示
+            const aspect = getAspectRatio();
 
-                for (let i = 0; i < points.length; i++) {
-                    stroke(255, 0, 0);
-                    strokeWeight(8);
-                    if (active_number == i) {
-                        circle(points[i].x, points[i].y, 15);
-                    }
-                    else {
-                        circle(points[i].x, points[i].y, 5);
-                    }
-                    noStroke();
-                    fill(255);
-                    text(i, points[i].x, points[i].y);
-                    fill(255, 0, 0, 51); // 透明度20%
-                }
-
-                tint(255, 255); // 半分の不透明度で表示
-                const aspect = getAspectRatio();
-
+            if (is_show_preview) {
                 let preview_pos = {
                     x: 20,
                     y: 20,
@@ -285,23 +286,31 @@ function draw() {
                     h: defaults.camera.width * 0.25 * aspect
                 };
 
+                let scale = 0.4;
+
                 if (preview_position == 'LEFT_TOP') {
                     preview_pos = {
                         x: 20, y: 20,
-                        w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect
+                        w: defaults.camera.width * scale, h: defaults.camera.width * scale * aspect
                     };
                 }
                 else if (preview_position == 'RIGHT_TOP') {
-                    preview_pos = { x: width - 20 - defaults.camera.width * .25, y: 20, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
+                    preview_pos = { x: width - 20 - defaults.camera.width * scale, y: 20, w: defaults.camera.width * scale, h: defaults.camera.width * scale * aspect };
                 }
                 else if (preview_position == 'RIGHT_BOTTOM') {
-                    preview_pos = { x: width - 20 - defaults.camera.width * .25, y: height - 20 - defaults.camera.width * 0.25 * aspect, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
+                    preview_pos = { x: width - 20 - defaults.camera.width * scale, y: height - 20 - defaults.camera.width * scale * aspect, w: defaults.camera.width * scale, h: defaults.camera.width * scale * aspect };
                 }
                 else {
-                    preview_pos = { x: 20, y: height - 20 - defaults.camera.width * 0.25 * aspect, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
+                    preview_pos = { x: 20, y: height - 20 - defaults.camera.width * scale * aspect, w: defaults.camera.width * scale, h: defaults.camera.width * scale * aspect };
                 }
 
-                drawSlide(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
+                if (is_black_screen) {
+                    fill(0);
+                    rect(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
+                }
+                else {
+                    drawSlide(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
+                }
 
                 tint(255, 255);
                 stroke(0, 255, 0);
@@ -310,55 +319,106 @@ function draw() {
                 rect(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
 
                 // 右上に "preview" の文字をいれる
-                textSize(16);
+                textSize(preview_pos.w / 20);
                 textAlign(RIGHT, TOP);
                 fill(255);
                 noStroke();
                 text('preview', preview_pos.x + preview_pos.w - 5, preview_pos.y + 5);
 
-                // video.time()の値を画面右上にタイムコードとして表示。背景は黒、文字色は白とする
-                textSize(16);
-                textAlign(LEFT, TOP);
-                fill(255);
-                noStroke();
-                text(
-                    performance.getEntriesByName('rectifyImage')[0].duration.toFixed(2) + 'ms',
-                    preview_pos.x + 5, preview_pos.y + 5);
-                performance.clearMeasures();
+                if (is_show_text) {
+                    drawControllerMessage(
+                        text_message,
+                        preview_pos.x + preview_pos.w / 2,
+                        preview_pos.y + preview_pos.h / 2,
+                        preview_pos.w / 25
+                    );
+                }
             }
-            else {
-                const aspect = getAspectRatio();
-                if (fullscreen_mode == 'SCREEN') {
-                    drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
-                }
-                else if (fullscreen_mode == 'CAMERA') {
-                    image(video, 0, 0, defaults.camera.width, defaults.camera.width * aspect);
-                }
-                else if (fullscreen_mode == 'SCREEN_CAMERA') {
 
-                    drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
-                    image(video, 25, 25, defaults.camera.width / 4, defaults.camera.width * aspect / 4);
+            // pip_pointsの描画
+            rectMode(CORNER);
+            if (pip_points.length > 0) {
+                stroke(0, 0, 255);
+                strokeWeight(2);
+                noFill();
+                // pip_pointsの最初と最後の座標を取得
+                let x = pip_points[0].x;
+                let y = pip_points[0].y;
+                let w = pip_points[pip_points.length - 1].x - pip_points[0].x;
+                let h = pip_points[pip_points.length - 1].y - pip_points[0].y;
+                rect(x, y, w, h);
+            }
+            if (pip_bb) {
+                stroke(0, 0, 255);
+                strokeWeight(2);
+                // pip_bb にマウスポインタがある場合
+                if (mouseX > pip_bb.x && mouseX < pip_bb.x + pip_bb.w && mouseY > pip_bb.y && mouseY < pip_bb.y + pip_bb.h) {
+                    fill(0, 0, 255, 51);
                 }
-                // image(video, 0, 0, width / 4, height / 4);
+                else {
+                    noFill();
+                }
+                rect(pip_bb.x, pip_bb.y, pip_bb.w, pip_bb.h);
+            }
+
+        }
+        else if (display_mode == 'FULLSCREEN') {
+            const aspect = getAspectRatio();
+            if (is_black_screen) {
+                fill(0);
+                rect(0, 0, defaults.camera.width, defaults.camera.width * aspect);
+            }
+            else if (fullscreen_mode == 'SCREEN') {
+                drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
+            }
+            else if (fullscreen_mode == 'CAMERA') {
+                image(video, 0, 0, defaults.camera.width, defaults.camera.width * aspect);
+            }
+            else if (fullscreen_mode == 'SCREEN_CAMERA') {
+
+                drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
+                if (pip_bb) {
+                    // バウンディングボックスの座標の画像を bb_image に保存する
+                    let bb_image = video.get(pip_bb.x, pip_bb.y, pip_bb.w, pip_bb.h);
+
+                    // バウンディングボックスの画像を右下に表示
+                    image(
+                        bb_image,
+                        defaults.camera.width - bb_image.width * pinp_scale - 25,
+                        defaults.camera.width * aspect - bb_image.height * pinp_scale - 25,
+                        bb_image.width * pinp_scale, bb_image.height * pinp_scale
+                    );
+
+                    // image(bb_image, defaults.camera.width - defaults.camera.width / 4 - 25,
+                    //     defaults.camera.width * aspect - defaults.camera.width * aspect / 4 - 25,
+                    //     defaults.camera.width / 4, defaults.camera.width * aspect / 4);
+                }
+                else {
+                    image(video,
+                        defaults.camera.width - pinp_scale * defaults.camera.width / 4 - 25,
+                        defaults.camera.width * aspect - pinp_scale * defaults.camera.width * aspect / 4 - 25,
+                        pinp_scale * defaults.camera.width / 4,
+                        pinp_scale * defaults.camera.width * aspect / 4);
+                }
+            }
+            if (is_show_text) {
+                drawControllerMessage(text_message, width / 2, height / 2, width / 25);
             }
         }
     }
 
-    if (is_show_text) {
-        const fs = width / 25;
-        rectMode(CENTER, CENTER);
-        textSize(fs);
-        fill(0, 200);
-        rect(width / 2, height / 2, textWidth(text_message), fs);
+}
 
-        textAlign(CENTER, CENTER);
-        fill(255);
-        noStroke();
-        text(
-            text_message,
-            width / 2, height / 2);
-    }
+function drawControllerMessage(t, x, y, fs) {
+    rectMode(CENTER);
+    textSize(fs);
+    fill(0, 200);
+    rect(x, y, textWidth(text_message), fs);
 
+    textAlign(CENTER, CENTER);
+    fill(255);
+    noStroke();
+    text(t, x, y);
 }
 
 
@@ -382,7 +442,6 @@ function cmousePressed(event) {
     // mouseX, mouseYはこのタイミングでは更新されていないため、eventのtouches情報を利用する。ただしこの場合はcanvasの座標系ではなく、domのサイズによる座標系になるため事前にその計算を行う必要がある
     if (!is_pc) {
         let dom = document.querySelector('#p5canvas');
-        console.log(dom.clientWidth, dom.clientHeight);
         let max = {
             x: dom.clientWidth,
             y: dom.clientHeight
@@ -392,14 +451,22 @@ function cmousePressed(event) {
         mouseY = height * (event.touches[0].clientY - rect.top) / max.y;
     }
 
-    // mouseX = event.touches[0].clientX;
-    // mouseY = event.touches[0].clientY;
     for (let i = 0; i < points.length; i++) {
         if (dist(mouseX, mouseY, points[i].x, points[i].y) < 50) {
             draggingPoint = points[i];
             active_number = i;
             break;
         }
+    }
+
+    // ホモグラフィー変換用の座標をクリックしなかったときは、PinP用のバウンディングボックス処理を行う
+    if (active_number <= 0 && display_mode != 'FULLSCREEN') {
+        // クリック箇所が pip_bb の範囲内であれば pip_bb は null にする
+        if (pip_bb && mouseX > pip_bb.x && mouseX < pip_bb.x + pip_bb.w && mouseY > pip_bb.y && mouseY < pip_bb.y + pip_bb.h) {
+            pip_bb = null;
+        }
+
+        pip_points.push({ x: mouseX, y: mouseY });
     }
     document.querySelector('#debug_text').innerHTML = `Pressed:(${mouseX}, ${mouseY})\n`;
 }
@@ -410,6 +477,10 @@ function cmouseDragged() {
         draggingPoint.x = mouseX;
         draggingPoint.y = mouseY;
     }
+
+    if (pip_points.length > 0 && pip_bb == null) {
+        pip_points.push({ x: mouseX, y: mouseY });
+    }
     document.querySelector('#debug_text').innerHTML = `Dragged:(${mouseX}, ${mouseY})\n`;
 
 }
@@ -417,6 +488,27 @@ function cmouseDragged() {
 function cmouseReleased() {
     draggingPoint = null;
     active_number = -1;
+
+    pip_points.push({ x: mouseX, y: mouseY });
+    // バウンディングボックスの座標を計算
+    if (pip_points.length > 1 && pip_bb == null) {
+        let x = pip_points[0].x;
+        let y = pip_points[0].y;
+        let w = pip_points[pip_points.length - 1].x - pip_points[0].x;
+        let h = pip_points[pip_points.length - 1].y - pip_points[0].y;
+        // バウンディングボックスの座標を計算
+        if (w < 5 || h < 5) {
+            pip_bb = null;
+        }
+        else {
+            pip_bb = { x: x, y: y, w: w, h: h };
+        }
+
+    }
+    else {
+
+    }
+    pip_points = [];
     document.querySelector('#debug_text').innerHTML = `Released:(${mouseX}, ${mouseY})\n`;
 }
 
@@ -590,7 +682,6 @@ function resetPosition() {
 
 const channel = new BroadcastChannel('slidecapture');
 channel.onmessage = function (event) {
-    console.log(event.data);
     if (event.data == 'fullscreen_screen') {
         if (display_mode != 'FULLSCREEN') {
             channel.postMessage({
@@ -650,30 +741,25 @@ channel.onmessage = function (event) {
     else if (event.data.type == 'text_message') {
         text_message = event.data.text;
     }
-    else if (event.data.type = 'toggle_black_screen') {
-        if (display_mode != 'FULLSCREEN') {
+    else if (event.data.type == 'toggle_black_screen') {
+        is_black_screen = !is_black_screen;
+        if (is_black_screen) {
             channel.postMessage({
-                type: 'Error',
+                type: 'Success',
                 message: 'toggle_black_screen',
-                text: 'Please make the main window fullscreen first.'
+                value: true
             });
         }
         else {
-            is_black_screen = !is_black_screen;
-            if (is_black_screen) {
-                channel.postMessage({
-                    type: 'Success',
-                    message: 'toggle_black_screen',
-                    value: true
-                });
-            }
-            else {
-                channel.postMessage({
-                    type: 'Success',
-                    message: 'toggle_black_screen',
-                    value: false
-                });
-            }
+            channel.postMessage({
+                type: 'Success',
+                message: 'toggle_black_screen',
+                value: false
+            });
         }
+
+    }
+    else if (event.data.type == 'pinp_scale') {
+        pinp_scale = event.data.value;
     }
 };

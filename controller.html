@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/08/04 00:10:51
+  last modified: 2024/08/04 02:25:07
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -35,57 +35,76 @@
                         <div class="card">
                             <div class="card-header">
                                 <i class="bi bi-gear"></i>
-                                Controller
+                                Slide Capture Video Mixer/Controller
                             </div>
                             <div class="card-body">
 
-                                <button class="btn btn-light mb-3" id="button_black"
-                                    onclick="channel.postMessage({type:'toggle_black_screen'})">Black</button>
+                                <button class="btn btn-lg btn-light mb-3" id="button_black"
+                                    onclick="channel.postMessage({type:'toggle_black_screen'})" style="width:7rem;">
+                                    <i class="bi bi-eye-slash"></i><br>
+                                    Black
+                                </button>
 
 
-                                <div class="card mb-3">
-                                    <div class="card-header">
-                                        <i class="bi bi-columns-gap"></i>
-                                        Layout
-                                    </div>
-                                    <div class="card-body">
-
-                                        <div class="btn btn-danger" onclick="sendMessage('fullscreen_screen');"
-                                            id="button_fullscreen_screen">
-                                            <i class="bi bi-tv"></i> Screen
-                                        </div>
-                                        <div class="btn btn-light" onclick="sendMessage('fullscreen_camera');"
-                                            id="button_fullscreen_camera">
-                                            <i class="bi bi-camera-video"></i> Camera
-                                        </div>
-                                        <div class="btn btn-light" onclick="sendMessage('fullscreen_screen_camera');"
-                                            id="button_fullscreen_screen_camera">
-                                            <i class="bi bi-pip"></i>
-                                            Screen and Camera
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <div class="card mb-3">
-                                    <div class="card-header">
-                                        <i class="bi bi-fonts"></i>
-                                        Text
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="input-group mb-3">
-                                            <div class="input-group-text">
-                                                <input class="form-check-input mt-0 me-2" type="checkbox" value=""
-                                                    aria-label="Checkbox for following text input"
-                                                    onchange="channel.postMessage({type:'show_text',value:this.checked})">
-                                                Show
+                                <div class="row">
+                                    <!-- Layout  -->
+                                    <div class="col-xs-12 col-sm-4">
+                                        <div class="card mb-3">
+                                            <div class="card-header">
+                                                <i class="bi bi-columns-gap"></i>
+                                                Layout
                                             </div>
-                                            <input type="text" class="form-control" placeholder="Coffee Break"
-                                                onchange="channel.postMessage({type:'text_message',text:this.value})">
+                                            <div class="card-body">
+
+                                                <div class="btn btn-lg btn-danger mb-2 me-2"
+                                                    onclick="sendMessage('fullscreen_screen');"
+                                                    id="button_fullscreen_screen" style="width:7rem;">
+                                                    <i class="bi bi-tv"></i> <br>Screen
+                                                </div>
+                                                <div class="btn btn-lg btn-light mb-2 me-2"
+                                                    onclick="sendMessage('fullscreen_camera');"
+                                                    id="button_fullscreen_camera" style="width:7rem;">
+                                                    <i class="bi bi-camera-video"></i> <br>Camera
+                                                </div>
+                                                <div class="btn btn-lg btn-light mb-2"
+                                                    onclick="sendMessage('fullscreen_screen_camera');"
+                                                    id="button_fullscreen_screen_camera" style="width:7rem;">
+                                                    <i class="bi bi-pip"></i>
+                                                    <br>PinP
+                                                </div>
+                                                <hr>
+                                                <label for="customRange1" class="form-label">PinP Scale (1x -
+                                                    4x)</label>
+                                                <input type="range" value="1" min="1" max="4" step="0.1"
+                                                    class="form-range"
+                                                    onchange="channel.postMessage({type:'pinp_scale',value:this.value})">
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <!-- Text -->
+                                    <div class="col-xs-12 col-sm-8">
+                                        <div class="card mb-3">
+                                            <div class="card-header">
+                                                <i class="bi bi-fonts"></i>
+                                                Text
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="input-group">
+                                                    <div class="input-group-text">
+                                                        <input class="form-check-input mt-0 me-2" type="checkbox"
+                                                            value="" aria-label="Checkbox for following text input"
+                                                            onchange="channel.postMessage({type:'show_text',value:this.checked})">
+                                                        Show
+                                                    </div>
+                                                    <input type="text" class="form-control" placeholder="Coffee Break"
+                                                        onchange="channel.postMessage({type:'text_message',text:this.value})">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-
 
 
 
