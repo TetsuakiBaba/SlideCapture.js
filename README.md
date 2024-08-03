@@ -4,11 +4,8 @@
 
 従来のSlideCaptureではOpenframeworksを利用していたため、メンテナンスや拡張が難しいという問題がありました。SlideCapture.jsはWeb技術を利用しているため、簡単に拡張やカスタマイズが可能です。ブラウザだけで動作するので非常に手軽に利用することができます。
 
-<!-- 従来のSlideCaptureではOpenframeworksを利用していたため、メンテナンスや拡張が難しいという問題がありました。SlideCapture.jsはWeb技術を利用しているため、簡単に拡張やカスタマイズが可能です。ブラウザだけで動作するので非常に手軽に利用することができます。を英語で記述する -->
 
-
-
-## 利用方法
+## How to use
 https://github.com/user-attachments/assets/25a954b4-42a9-4504-b968-f088caad4b53
 
 Photo by Mikael Blomkvist: https://www.pexels.com/ja-jp/photo/6476776/

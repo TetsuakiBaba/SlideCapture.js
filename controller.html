@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/08/03 15:53:45
+  last modified: 2024/08/04 00:10:51
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -22,100 +22,80 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.js"></script> -->
 
-    <script src="
-https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.min.js
-"></script>
 
-    <script src="sketch.js?v=13" defer></script>
+
 </head>
 
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-xs-12 col-sm-4 mt-3" id="control_ui">
+            <div class="col-12 mt-3" id="control_ui">
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
                                 <i class="bi bi-gear"></i>
-                                Settings
+                                Controller
                             </div>
                             <div class="card-body">
 
-                                <!-- Button trigger modal -->
-                                <button type="button" class="btn btn-sm btn-success mb-3 me-2" data-bs-toggle="modal"
-                                    data-bs-target="#tutorial_modal">
-                                    <i class="bi bi-info-circle"></i> Basic Tutorial
-                                </button>
+                                <button class="btn btn-light mb-3" id="button_black"
+                                    onclick="channel.postMessage({type:'toggle_black_screen'})">Black</button>
 
-                                <button type="button" class="btn btn-sm btn-primary mb-3" onclick="toggleFullScreen();">
-                                    <i class="bi bi-fullscreen"></i> Full Screen
-                                </button>
 
-                                <div class="input-group mb-3">
-                                    <label class="input-group-text" for="videoSource"><i
-                                            class="bi bi-camera-video"></i></label>
-
-                                    <select class="form-select" id="videoSource"></select>
-                                    <button type="button" class="btn btn-primary" onclick="updateCameraList();"><i
-                                            class="bi bi-arrow-clockwise"></i></button>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <label class="input-group-text">
-                                        <i class="bi bi-aspect-ratio"></i>
-                                    </label>
-                                    <select class="form-select" id="aspect">
-                                        <option class="form-select" value="fit" selected>Display fit</option>
-                                        <option class="form-select" value="0.75">4:3</option>
-                                        <option class="form-select" value="0.625">16:10</option>
-                                        <option class="form-select" value="0.5625">16:9</option>
-                                    </select>
-
-                                    <button type="button" class="btn btn-primary" onclick="movePreviewPosition();"><i
-                                            class="bi bi-microsoft"></i></button>
-                                </div>
-
-                                <div class="card">
+                                <div class="card mb-3">
                                     <div class="card-header">
-                                        Optional
+                                        <i class="bi bi-columns-gap"></i>
+                                        Layout
                                     </div>
                                     <div class="card-body">
-                                        <!-- 最初にtutorial modalが出ないようにする設定toggle -->
-                                        <div class="form-check form-switch mb-3">
-                                            <input class="form-check-input" type="checkbox" role="switch"
-                                                id="show_basic_tutorial" checked
-                                                onchange="toggleShowBasicTutorial(this);">
-                                            <label class="form-check-label" for="show_basic_tutorial">
-                                                Auto Tutorial Modal</label>
+
+                                        <div class="btn btn-danger" onclick="sendMessage('fullscreen_screen');"
+                                            id="button_fullscreen_screen">
+                                            <i class="bi bi-tv"></i> Screen
                                         </div>
+                                        <div class="btn btn-light" onclick="sendMessage('fullscreen_camera');"
+                                            id="button_fullscreen_camera">
+                                            <i class="bi bi-camera-video"></i> Camera
+                                        </div>
+                                        <div class="btn btn-light" onclick="sendMessage('fullscreen_screen_camera');"
+                                            id="button_fullscreen_screen_camera">
+                                            <i class="bi bi-pip"></i>
+                                            Screen and Camera
+                                        </div>
+                                    </div>
 
-                                        <button type="button" class="btn btn-sm btn-danger"
-                                            onclick="resetCornerPoints();">
-                                            <i class="bi bi-x-circle"></i> Reset Corner Points
+                                </div>
 
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <i class="bi bi-fonts"></i>
+                                        Text
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-text">
+                                                <input class="form-check-input mt-0 me-2" type="checkbox" value=""
+                                                    aria-label="Checkbox for following text input"
+                                                    onchange="channel.postMessage({type:'show_text',value:this.checked})">
+                                                Show
+                                            </div>
+                                            <input type="text" class="form-control" placeholder="Coffee Break"
+                                                onchange="channel.postMessage({type:'text_message',text:this.value})">
+                                        </div>
                                     </div>
                                 </div>
+
+
+
+
                             </div>
                         </div>
                     </div>
-                    <div class="col-12" id="debug" hidden>
-                        <textarea class="form-control" id="debug_text" rows="3" placeholder="Debug textarea"
-                            readonly></textarea>
-                    </div>
+
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-8 mb-3" id="canvasholder">
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <i class="bi bi-camera-video"></i>
-                        Camera
-                    </div>
-                    <div class="card-body" id="canvasholder_settings">
-                        <div id="p5canvas"></div>
-                        <div id="zoom_ui" class=""></div>
-                    </div>
-                </div>
-            </div>
+
         </div>
         <hr>
         <footer>
@@ -161,14 +141,16 @@ https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.min.js
                         </div>
                         <div class="col-6">
                             <ol class="list-group list-group-flush list-group-numbered">
-                                <li class="list-group-item">Align the red circles with the corners of the screen.</li>
+                                <li class="list-group-item">Align the red circles with the corners of the screen.
+                                </li>
                                 <li class="list-group-item">Double-tap/click the screen to toggle full screen.</li>
                                 <li class="list-group-item">Share the full screen from ZOOM.</li>
                             </ol>
                             <div class="small mt-3">
                                 Notes
                                 <ul>
-                                    <li>Not available on iOS smartphones, due to iOS Safari does not allow fullscreen
+                                    <li>Not available on iOS smartphones, due to iOS Safari does not allow
+                                        fullscreen
                                         request function. </li>
                                     <li>Only horizontal camera is supported</li>
                                     <li>Depending on the camera used, the ZOOM UI may be displayed below the camera
@@ -187,41 +169,8 @@ https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.min.js
 
     <script>
 
-        function updateCameraList() {
-            navigator.mediaDevices.enumerateDevices().then(devices => {
-                let videoSelect = document.getElementById('videoSource');
-                videoSelect.innerHTML = '';
-                devices.forEach(device => {
-                    if (device.kind === 'videoinput') {
-                        const option = document.createElement('option');
-                        option.value = device.deviceId;
-                        option.text = device.label || `Camera ${videoSelect.length + 1}`;
-                        videoSelect.appendChild(option);
-
-
-                        // もしlocalStorageに保存されているdeviceIdと同じであれば selected にする
-                        if (localStorage.getItem('slidecapture.deviceId') === device.deviceId) {
-                            option.selected = true;
-                        }
-                    }
-                });
-            });
-        }
         // domが読み込まれたら
         document.addEventListener('DOMContentLoaded', () => {
-            updateCameraList();
-
-            // localStrageに showBasicTutorialがあれば、tutorial_modalを表示
-            const showBasicTutorial = localStorage.getItem('slidecapture.showBasicTutorial');
-            if (showBasicTutorial === null || showBasicTutorial === 'true') {
-                const tutorial_modal = new bootstrap.Modal(document.getElementById('tutorial_modal'), {
-                    keyboard: false
-                });
-                tutorial_modal.show();
-            }
-            else {
-                document.getElementById('show_basic_tutorial').checked = false;
-            }
 
             // modalが閉じられたときと、表示されたときに呼び出される関数
             document.getElementById('tutorial_modal').addEventListener('hidden.bs.modal', () => {
@@ -235,6 +184,58 @@ https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.min.js
             document.getElementById('version_date').textContent = version;
 
         });
+
+        const channel = new BroadcastChannel('slidecapture');
+        function sendMessage(message) {
+            channel.postMessage(message);
+        }
+
+        // main window からのメッセージを受け取る
+        channel.onmessage = (event) => {
+            console.log(event.data);
+            if (event.data.type == 'Error') {
+                alert(`${event.data.message}:${event.data.text}`);
+            }
+            else if (event.data.type == 'Success') {
+                if (event.data.message == 'fullscreen_screen') {
+                    document.getElementById('button_fullscreen_screen').classList.remove('btn-light');
+                    document.getElementById('button_fullscreen_screen').classList.add('btn-danger');
+                    document.getElementById('button_fullscreen_camera').classList.remove('btn-danger');
+                    document.getElementById('button_fullscreen_camera').classList.add('btn-light');
+                    document.getElementById('button_fullscreen_screen_camera').classList.remove('btn-danger');
+                    document.getElementById('button_fullscreen_screen_camera').classList.add('btn-light');
+                }
+                else if (event.data.message == 'fullscreen_camera') {
+                    document.getElementById('button_fullscreen_screen').classList.remove('btn-danger');
+                    document.getElementById('button_fullscreen_screen').classList.add('btn-light');
+                    document.getElementById('button_fullscreen_camera').classList.remove('btn-light');
+                    document.getElementById('button_fullscreen_camera').classList.add('btn-danger');
+                    document.getElementById('button_fullscreen_screen_camera').classList.remove('btn-danger');
+                    document.getElementById('button_fullscreen_screen_camera').classList.add('btn-light');
+                }
+                else if (event.data.message == 'fullscreen_screen_camera') {
+                    document.getElementById('button_fullscreen_screen').classList.remove('btn-danger');
+                    document.getElementById('button_fullscreen_screen').classList.add('btn-light');
+                    document.getElementById('button_fullscreen_camera').classList.remove('btn-danger');
+                    document.getElementById('button_fullscreen_camera').classList.add('btn-light');
+                    document.getElementById('button_fullscreen_screen_camera').classList.remove('btn-light');
+                    document.getElementById('button_fullscreen_screen_camera').classList.add('btn-danger');
+                }
+                else if (event.data.message == 'toggle_black_screen') {
+                    if (event.data.value == true) {
+                        document.getElementById('button_black').classList.remove('btn-light');
+                        document.getElementById('button_black').classList.add('btn-danger');
+                    }
+                    else {
+                        document.getElementById('button_black').classList.remove('btn-danger');
+                        document.getElementById('button_black').classList.add('btn-light');
+                    }
+                }
+
+            }
+        };
+
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"

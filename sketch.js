@@ -9,14 +9,24 @@ let active_number = -1;
 let is_pc = true;
 let p5canvas;
 
+
 let defaults = {
     camera: {
         width: 1280,
         height: 720,
-        fps: 30
+        fps: 24
     }
 }
 
+let is_show_text = false;
+let is_black_screen = false;
+let text_message = '';
+
+let fullscreen_mode = 'SCREEN';// SCREEN, CAMERA, SCREEN_CAMERA
+// プレビューの位置を変更する
+// LEFT_TOP, RIGHT_TOP, RIGHT_BOTTOM, LEFT_BOTTOM
+// デフォルトはLEFT_TOP
+// デフォルトの位置から時計回りに変更する
 let display_mode = 'DEFAULT';
 let preview_position = 'LEFT_TOP';
 function movePreviewPosition() {
@@ -40,9 +50,7 @@ function movePreviewPosition() {
 function setup() {
     pixelDensity(1.0);
     transformedImage = createGraphics(defaults.camera.width, defaults.camera.height);
-    let c = p5canvas = createCanvas(defaults.camera.width, defaults.camera.height);
-
-
+    let c = p5canvas = createCanvas(defaults.camera.width, defaults.camera.height, P2D);
 
     frameRate(defaults.camera.fps);
     c.parent('p5canvas');
@@ -223,105 +231,133 @@ function initVideo() {
 
     // もしvideoにzoomがあれば、zoomの調整が可能なrange inputを設定する
     // const capabilities = video.getVideoTracks()[0].getCapabilities();
-
-
-
-
 }
 
 function draw() {
     background(0);
-    // videoが読み込まれていれば
-    if (video.loadedmetadata) {
-        video.loadPixels();
-        if (display_mode == 'DEFAULT') {
-            image(video, 0, 0, width, height);
-
-            // 矩形領域の塗りつぶしを透明度20%に設定
-            fill(255, 0, 0, 51); // 透明度20%
-            stroke(0, 255, 0);
-            strokeWeight(2);
-            beginShape();
-            for (let i = 0; i < points.length; i++) {
-                vertex(points[i].x, points[i].y);
-            }
-            endShape(CLOSE);
-
-
-            for (let i = 0; i < points.length; i++) {
-                stroke(255, 0, 0);
-                strokeWeight(8);
-                if (active_number == i) {
-                    circle(points[i].x, points[i].y, 15);
-                }
-                else {
-                    circle(points[i].x, points[i].y, 5);
-                }
-                noStroke();
-                fill(255);
-                text(i, points[i].x, points[i].y);
-                fill(255, 0, 0, 51); // 透明度20%
-            }
-
-            tint(255, 255); // 半分の不透明度で表示
-            const aspect = getAspectRatio();
-
-            let preview_pos = {
-                x: 20,
-                y: 20,
-                w: defaults.camera.width * .25,
-                h: defaults.camera.width * 0.25 * aspect
-            };
-
-            if (preview_position == 'LEFT_TOP') {
-                preview_pos = {
-                    x: 20, y: 20,
-                    w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect
-                };
-            }
-            else if (preview_position == 'RIGHT_TOP') {
-                preview_pos = { x: width - 20 - defaults.camera.width * .25, y: 20, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
-            }
-            else if (preview_position == 'RIGHT_BOTTOM') {
-                preview_pos = { x: width - 20 - defaults.camera.width * .25, y: height - 20 - defaults.camera.width * 0.25 * aspect, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
-            }
-            else {
-                preview_pos = { x: 20, y: height - 20 - defaults.camera.width * 0.25 * aspect, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
-            }
-
-            drawSlide(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
-
-            tint(255, 255);
-            stroke(0, 255, 0);
-            strokeWeight(2);
-            rect(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
-
-            // 右上に "preview" の文字をいれる
-            textSize(16);
-            textAlign(RIGHT, TOP);
-            fill(255);
-            noStroke();
-            text('preview', preview_pos.x + preview_pos.w - 5, preview_pos.y + 5);
-
-            // video.time()の値を画面右上にタイムコードとして表示。背景は黒、文字色は白とする
-            textSize(9);
-            textAlign(LEFT, TOP);
-            fill(255);
-            noStroke();
-            text(video.time().toFixed(2), preview_pos.x + 5, preview_pos.y + 5);
-
-        }
-        else {
-            const aspect = getAspectRatio();
-            drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
-            // image(video, 0, 0, width / 4, height / 4);
-        }
-
-
-
+    if (is_black_screen) {
+        fill(0);
+        rectMode(CORNER, CORNER);
+        rect(0, 0, width, height);
 
     }
+    else {
+        // videoが読み込まれていれば
+        if (video.loadedmetadata) {
+            video.loadPixels();
+            if (display_mode == 'DEFAULT') {
+                image(video, 0, 0, width, height);
 
+                // 矩形領域の塗りつぶしを透明度20%に設定
+                fill(255, 0, 0, 51); // 透明度20%
+                textSize(16);
+                stroke(0, 255, 0);
+                strokeWeight(2);
+                beginShape();
+                for (let i = 0; i < points.length; i++) {
+                    vertex(points[i].x, points[i].y);
+                }
+                endShape(CLOSE);
+
+
+                for (let i = 0; i < points.length; i++) {
+                    stroke(255, 0, 0);
+                    strokeWeight(8);
+                    if (active_number == i) {
+                        circle(points[i].x, points[i].y, 15);
+                    }
+                    else {
+                        circle(points[i].x, points[i].y, 5);
+                    }
+                    noStroke();
+                    fill(255);
+                    text(i, points[i].x, points[i].y);
+                    fill(255, 0, 0, 51); // 透明度20%
+                }
+
+                tint(255, 255); // 半分の不透明度で表示
+                const aspect = getAspectRatio();
+
+                let preview_pos = {
+                    x: 20,
+                    y: 20,
+                    w: defaults.camera.width * .25,
+                    h: defaults.camera.width * 0.25 * aspect
+                };
+
+                if (preview_position == 'LEFT_TOP') {
+                    preview_pos = {
+                        x: 20, y: 20,
+                        w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect
+                    };
+                }
+                else if (preview_position == 'RIGHT_TOP') {
+                    preview_pos = { x: width - 20 - defaults.camera.width * .25, y: 20, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
+                }
+                else if (preview_position == 'RIGHT_BOTTOM') {
+                    preview_pos = { x: width - 20 - defaults.camera.width * .25, y: height - 20 - defaults.camera.width * 0.25 * aspect, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
+                }
+                else {
+                    preview_pos = { x: 20, y: height - 20 - defaults.camera.width * 0.25 * aspect, w: defaults.camera.width * .25, h: defaults.camera.width * 0.25 * aspect };
+                }
+
+                drawSlide(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
+
+                tint(255, 255);
+                stroke(0, 255, 0);
+                strokeWeight(2);
+                rectMode(CORNER);
+                rect(preview_pos.x, preview_pos.y, preview_pos.w, preview_pos.h);
+
+                // 右上に "preview" の文字をいれる
+                textSize(16);
+                textAlign(RIGHT, TOP);
+                fill(255);
+                noStroke();
+                text('preview', preview_pos.x + preview_pos.w - 5, preview_pos.y + 5);
+
+                // video.time()の値を画面右上にタイムコードとして表示。背景は黒、文字色は白とする
+                textSize(16);
+                textAlign(LEFT, TOP);
+                fill(255);
+                noStroke();
+                text(
+                    performance.getEntriesByName('rectifyImage')[0].duration.toFixed(2) + 'ms',
+                    preview_pos.x + 5, preview_pos.y + 5);
+                performance.clearMeasures();
+            }
+            else {
+                const aspect = getAspectRatio();
+                if (fullscreen_mode == 'SCREEN') {
+                    drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
+                }
+                else if (fullscreen_mode == 'CAMERA') {
+                    image(video, 0, 0, defaults.camera.width, defaults.camera.width * aspect);
+                }
+                else if (fullscreen_mode == 'SCREEN_CAMERA') {
+
+                    drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
+                    image(video, 25, 25, defaults.camera.width / 4, defaults.camera.width * aspect / 4);
+                }
+                // image(video, 0, 0, width / 4, height / 4);
+            }
+        }
+    }
+
+    if (is_show_text) {
+        const fs = width / 25;
+        rectMode(CENTER, CENTER);
+        textSize(fs);
+        fill(0, 200);
+        rect(width / 2, height / 2, textWidth(text_message), fs);
+
+        textAlign(CENTER, CENTER);
+        fill(255);
+        noStroke();
+        text(
+            text_message,
+            width / 2, height / 2);
+    }
 
 }
 
@@ -335,8 +371,10 @@ function drawSlide(x, y, w, h) {
     ];
     // points情報を localStorageに保存
     localStorage.setItem('slidecapture.points', JSON.stringify(srcPoints));
+    performance.mark('start');
     let img = rectifyImage(video, srcPoints, 0, 0, video.width, video.height);
-
+    performance.mark('end');
+    performance.measure('rectifyImage', 'start', 'end');
     image(img, x, y, w, h);
 }
 
@@ -386,27 +424,67 @@ function keyPressed() {
     if (key === ' ') {
         toggleFullScreen()
     }
+    // 右矢印期間で画面表示をカメラ全体に変更
+    if (key === 'c') {
+        fullscreen_mode = 'CAMERA';// SCREEN, CAMERA, SCREEN_CAMERA
+    }
+    else if (key == 's') {
+        fullscreen_mode = 'SCREEN';
+    }
+    else if (key == 'b') {
+        fullscreen_mode = 'SCREEN_CAMERA';
+    }
+
 }
 
 // ホモグラフィ変換で画像の歪みを補正する
-function rectifyImage(srcImg, p, x, y, w, h) {
-    let srcArr = [];
-    p.forEach(p => {
-        srcArr.push(p.x);
-        srcArr.push(p.y);
-    });
+// function rectifyImage(srcImg, p, x, y, w, h) {
+//     let srcArr = [];
+//     p.forEach(p => {
+//         srcArr.push(p.x);
+//         srcArr.push(p.y);
+//     });
 
-    // 生成画像のアスペクト比を決める
-    // let w1 = Math.sqrt((p[0].x - p[1].x) ** 2 + (p[0].y - p[1].y) ** 2);
-    // let h1 = Math.sqrt((p[1].x - p[2].x) ** 2 + (p[1].y - p[2].y) ** 2);
-    // let w2 = Math.sqrt((p[2].x - p[3].x) ** 2 + (p[2].y - p[3].y) ** 2);
-    // let h2 = Math.sqrt((p[3].x - p[0].x) ** 2 + (p[3].y - p[0].y) ** 2);
-    // let maxWidth = Math.max(w1, w2);
-    // let maxHeight = Math.max(h1, h2);
-    let maxWidth = defaults.camera.width;
-    let maxHeight = defaults.camera.height;
+//     let maxWidth = defaults.camera.width;
+//     let maxHeight = defaults.camera.height;
 
-    let dstArr = [
+//     let dstArr = [
+//         0, 0,
+//         maxWidth, 0,
+//         maxWidth, maxHeight,
+//         0, maxHeight
+//     ];
+
+//     const srcMat = cv.matFromArray(4, 1, cv.CV_32FC2, srcArr);
+//     const dstMat = cv.matFromArray(4, 1, cv.CV_32FC2, dstArr);
+//     const M = cv.getPerspectiveTransform(srcMat, dstMat);
+//     const src = cv.imread(srcImg.canvas);
+//     let dst = new cv.Mat();
+//     let dsize = new cv.Size(maxWidth, maxHeight);
+//     cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+
+
+//     let imgData = new ImageData(new Uint8ClampedArray(dst.data), dst.cols, dst.rows);
+//     transformedImage.clear();
+//     transformedImage.drawingContext.putImageData(imgData, 0, 0);
+
+//     srcMat.delete();
+//     dstMat.delete();
+//     M.delete();
+//     src.delete();
+//     dst.delete();
+
+//     return transformedImage;
+// }
+
+
+
+function rectifyImage(srcImg, points, x, y, w, h) {
+    const srcArr = points.flatMap(p => [p.x, p.y]);
+
+    const { width: maxWidth, height: maxHeight } = defaults.camera;
+
+    const dstArr = [
         0, 0,
         maxWidth, 0,
         maxWidth, maxHeight,
@@ -416,20 +494,20 @@ function rectifyImage(srcImg, p, x, y, w, h) {
     const srcMat = cv.matFromArray(4, 1, cv.CV_32FC2, srcArr);
     const dstMat = cv.matFromArray(4, 1, cv.CV_32FC2, dstArr);
     const M = cv.getPerspectiveTransform(srcMat, dstMat);
+
     const src = cv.imread(srcImg.canvas);
-    let dst = new cv.Mat();
-    let dsize = new cv.Size(maxWidth, maxHeight);
-    cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
 
+    const dst = new cv.Mat();
+    const dsize = new cv.Size(maxWidth, maxHeight);
 
-    let imgData = new ImageData(new Uint8ClampedArray(dst.data), dst.cols, dst.rows);
+    cv.warpPerspective(src, dst, M, dsize,
+        cv.INTER_LINEAR,
+        cv.BORDER_CONSTANT,
+        new cv.Scalar());
+
     transformedImage.clear();
-    // transformedImage.resizeCanvas(imgData.width, imgData.height);
+    const imgData = new ImageData(new Uint8ClampedArray(dst.data), dst.cols, dst.rows);
     transformedImage.drawingContext.putImageData(imgData, 0, 0);
-
-    // transformedImage.width = imgData.width;
-    // transformedImage.height = imgData.height;
-
 
     srcMat.delete();
     dstMat.delete();
@@ -439,6 +517,7 @@ function rectifyImage(srcImg, p, x, y, w, h) {
 
     return transformedImage;
 }
+
 
 function createMatrixFromPoints(points) {
     let mat = new p5.Matrix();
@@ -507,3 +586,94 @@ function resetPosition() {
         document.querySelector('#canvasholder').style.cssText = '';
     }
 }
+
+
+const channel = new BroadcastChannel('slidecapture');
+channel.onmessage = function (event) {
+    console.log(event.data);
+    if (event.data == 'fullscreen_screen') {
+        if (display_mode != 'FULLSCREEN') {
+            channel.postMessage({
+                type: 'Error',
+                message: 'Please make the main window fullscreen first.'
+            });
+        }
+        else {
+            channel.postMessage(
+                {
+                    type: 'Success',
+                    message: 'fullscreen_screen',
+                    value: true
+                }
+            )
+            fullscreen_mode = 'SCREEN';
+        }
+    }
+    else if (event.data == 'fullscreen_camera') {
+        if (display_mode != 'FULLSCREEN') {
+            channel.postMessage({
+                type: 'Error',
+                message: 'Please make the main window fullscreen first.'
+            });
+        }
+        else {
+            channel.postMessage(
+                {
+                    type: 'Success',
+                    message: 'fullscreen_camera',
+                    value: true
+                }
+            )
+            fullscreen_mode = 'CAMERA';
+        }
+    }
+    else if (event.data == 'fullscreen_screen_camera') {
+        if (display_mode != 'FULLSCREEN') {
+            channel.postMessage({
+                type: 'Error',
+                message: 'fullscreen_screen_camera',
+                text: 'Please make the main window fullscreen first.'
+            });
+        }
+        else {
+            channel.postMessage({
+                type: 'Success',
+                message: 'fullscreen_screen_camera',
+                value: true
+            });
+            fullscreen_mode = 'SCREEN_CAMERA';
+        }
+    }
+    else if (event.data.type == 'show_text') {
+        is_show_text = event.data.value;
+    }
+    else if (event.data.type == 'text_message') {
+        text_message = event.data.text;
+    }
+    else if (event.data.type = 'toggle_black_screen') {
+        if (display_mode != 'FULLSCREEN') {
+            channel.postMessage({
+                type: 'Error',
+                message: 'toggle_black_screen',
+                text: 'Please make the main window fullscreen first.'
+            });
+        }
+        else {
+            is_black_screen = !is_black_screen;
+            if (is_black_screen) {
+                channel.postMessage({
+                    type: 'Success',
+                    message: 'toggle_black_screen',
+                    value: true
+                });
+            }
+            else {
+                channel.postMessage({
+                    type: 'Success',
+                    message: 'toggle_black_screen',
+                    value: false
+                });
+            }
+        }
+    }
+};
