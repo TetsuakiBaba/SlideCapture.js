@@ -738,7 +738,7 @@ function toggleShowBasicTutorial(dom) {
 
 function toggleFullScreen() {
     homographyMode = !homographyMode;
-    // toggleShowScrollbar();
+    toggleShowScrollbar();
     if (display_mode != 'FULLSCREEN') {
         display_mode = 'FULLSCREEN';
     }

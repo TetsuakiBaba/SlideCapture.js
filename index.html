@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/08/04 20:52:21
+  last modified: 2024/08/04 21:44:14
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -274,11 +274,6 @@
         }
 
         function toggleCameraResolution(dom) {
-            // もし domのvalueが 640x480 ならば、width = 640, height = 480にする。またその逆も行う
-            const resolution = dom.value.split('x');
-            width = resolution[0];
-            height = resolution[1];
-            // もしカメラが選択されていれば、カメラを再起動する
             if (videoSource.value !== '') {
                 initVideo();
             }
