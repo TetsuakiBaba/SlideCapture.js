@@ -70,7 +70,6 @@ function setup() {
         c.touchStarted(cmousePressed);
         c.touchMoved(cmouseDragged);
         c.touchEnded(cmouseReleased);
-        disable_scroll();
         is_pc = false;
     }
     else if (navigator.userAgent.indexOf('iPhone') > 0 ||
@@ -84,7 +83,6 @@ function setup() {
         c.touchStarted(cmousePressed);
         c.touchMoved(cmouseDragged);
         c.touchEnded(cmouseReleased);
-        disable_scroll();
         is_pc = false;
     } else if (navigator.userAgent.indexOf('Safari') > 0 &&
         navigator.userAgent.indexOf('Chrome') == -1 &&
@@ -93,7 +91,6 @@ function setup() {
         c.touchStarted(cmousePressed);
         c.touchMoved(cmouseDragged);
         c.touchEnded(cmouseReleased);
-        disable_scroll();
         is_pc = false;
     } else {
         c.mousePressed(cmousePressed);
@@ -478,6 +475,7 @@ function drawSlide(x, y, w, h) {
 function cmousePressed(event) {
     // mouseX, mouseYはこのタイミングでは更新されていないため、eventのtouches情報を利用する。ただしこの場合はcanvasの座標系ではなく、domのサイズによる座標系になるため事前にその計算を行う必要がある
     if (!is_pc) {
+        disable_scroll();
         let dom = document.querySelector('#p5canvas');
         let max = {
             x: dom.clientWidth,
@@ -526,6 +524,9 @@ function cmouseReleased() {
     draggingPoint = null;
     active_number = -1;
 
+    if (!is_pc) {
+        enable_scroll();
+    }
     pip_points.push({ x: mouseX, y: mouseY });
     // バウンディングボックスの座標を計算
     if (pip_points.length > 1 && pip_bb == null) {

@@ -29,3 +29,4 @@ secrets.json
 *.~
 
 *.ignore.*
+.DS_Store
