@@ -18,7 +18,7 @@ let defaults = {
     camera: {
         width: 1280,
         height: 720,
-        fps: 24
+        fps: 30
     }
 }
 
@@ -137,7 +137,6 @@ function setup() {
 
     initVideo();
 
-
     // fullscreenchangeイベントを監視
     document.addEventListener('fullscreenchange', (event) => {
         if (!document.fullscreenElement) {
@@ -223,6 +222,7 @@ function initVideo() {
     transformedImage.resizeCanvas(defaults.camera.width, defaults.camera.height);
     p5canvas.style('width', '100%');
     p5canvas.style('height', 'auto');
+
     let constraints = {
         video: {
             deviceId: videoSourceSelect.value(),
@@ -266,10 +266,17 @@ function initVideo() {
                 videoTrack.applyConstraints({ advanced: [{ zoom: parseFloat(event.target.value) }] });
             });
         }
+
     });
 
-    // もしvideoにzoomがあれば、zoomの調整が可能なrange inputを設定する
-    // const capabilities = video.getVideoTracks()[0].getCapabilities();
+
+    // もしpointsの座標がcanvasサイズからはみでていれば初期値に戻す
+    for (let i = 0; i < points.length; i++) {
+        if (points[i].x < 0 || points[i].x > width || points[i].y < 0 || points[i].y > height) {
+            resetCornerPoints();
+            break;
+        }
+    }
 }
 
 function draw() {

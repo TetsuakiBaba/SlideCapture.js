@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/08/04 21:50:38
+  last modified: 2024/08/04 22:53:54
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -53,8 +53,6 @@
                                         <option class="form-select" value="640x480">640x480</option>
                                         <option class="form-select" value="1280x720" selected>1280x720</option>
                                         <option class="form-select" value="1920x1080">1920x1080</option>
-                                        <option class="form-select" value="2560x1440">2560x1440</option>
-                                        <option class="form-select" value="3840x2160">3840x2160</option>
                                     </select>
                                     <button type="button" class="btn btn-primary" onclick="updateCameraList();"><i
                                             class="bi bi-arrow-clockwise"></i></button>
@@ -221,7 +219,6 @@
                         option.value = device.deviceId;
                         option.text = device.label || `Camera ${videoSelect.length + 1}`;
                         videoSelect.appendChild(option);
-
 
                         // もしlocalStorageに保存されているdeviceIdと同じであれば selected にする
                         if (localStorage.getItem('slidecapture.deviceId') === device.deviceId) {
