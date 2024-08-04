@@ -181,7 +181,7 @@ function getAspectRatio() {
 }
 
 function getDisplayAspectRatio() {
-    const aspect = parseFloat(window.screen.height / window.screen.width);
+    let aspect = parseFloat(window.screen.height / window.screen.width);
     if (aspect > 1.0) {
         aspect = parseFloat(window.screen.width / window.screen.height);
     }
@@ -758,7 +758,6 @@ function toggleFullScreen() {
 function resetPosition() {
     const aspect = getDisplayAspectRatio();
     if (display_mode == 'FULLSCREEN') {
-        // resizeCanvas(defaults.camera.width, defaults.camera.width * aspect);
         resizeCanvas(defaults.camera.width, defaults.camera.width * aspect);
     }
     else {
