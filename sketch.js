@@ -151,11 +151,11 @@ function resetCornerPoints() {
 function getAspectRatio() {
     let aspect;
     if (document.querySelector('#aspect').value == "fit") {
-        if (displayWidth > displayHeight) {
-            aspect = parseFloat(displayHeight / displayWidth);
+        if (window.screen.width > window.screen.height) {
+            aspect = parseFloat(window.screen.height / window.screen.width);
         }
         else {
-            aspect = parseFloat(displayWidth / displayHeight);
+            aspect = parseFloat(window.screen.width / window.screen.height);
         }
     }
     else {
@@ -240,7 +240,10 @@ function initVideo() {
 }
 
 function draw() {
-    background(0);
+    // background(127);
+    rectMode(CORNER);
+    fill(0);
+    rect(0, 0, width, height);
 
     // videoが読み込まれていれば
     if (video.loadedmetadata) {
@@ -354,29 +357,62 @@ function draw() {
                 // pip_bb にマウスポインタがある場合
                 if (mouseX > pip_bb.x && mouseX < pip_bb.x + pip_bb.w && mouseY > pip_bb.y && mouseY < pip_bb.y + pip_bb.h) {
                     fill(0, 0, 255, 51);
+                    rect(pip_bb.x, pip_bb.y, pip_bb.w, pip_bb.h);
+                    textAlign(CENTER, CENTER);
+                    textSize(pip_bb.w / 10);
+                    fill(255);
+                    noStroke();
+                    text('click to remove', pip_bb.x + pip_bb.w / 2, pip_bb.y + pip_bb.h / 2);
                 }
                 else {
-                    noFill();
+                    fill(255, 0, 0, 51);
+                    rect(pip_bb.x, pip_bb.y, pip_bb.w, pip_bb.h);
                 }
-                rect(pip_bb.x, pip_bb.y, pip_bb.w, pip_bb.h);
+
+                // fontSize(pip_bb.w / 25);
+                fill(255);
+                textSize(pip_bb.w / 10);
+                textAlign(RIGHT, TOP);
+                text('PinP', pip_bb.x + pip_bb.w, pip_bb.y);
+
             }
 
         }
         else if (display_mode == 'FULLSCREEN') {
             const aspect = getAspectRatio();
+            // カメラサイズのアスペクト比を維持して表示。上下中央表示
+            let y = 0;
+
             if (is_black_screen) {
                 fill(0);
-                rect(0, 0, defaults.camera.width, defaults.camera.width * aspect);
+                rect(0, 0, width, height);
             }
             else if (fullscreen_mode == 'SCREEN') {
-                drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
+                if (height > defaults.camera.height) {
+                    y = (height - defaults.camera.width * aspect) / 2;
+                }
+                drawSlide(
+                    0, y,
+                    defaults.camera.width, defaults.camera.width * aspect);
             }
             else if (fullscreen_mode == 'CAMERA') {
-                image(video, 0, 0, defaults.camera.width, defaults.camera.width * aspect);
+                if (height > defaults.camera.height) {
+                    y = (height - defaults.camera.height) / 2;
+                }
+                image(video,
+                    0,
+                    y,
+                    defaults.camera.width,
+                    defaults.camera.height);
+
             }
             else if (fullscreen_mode == 'SCREEN_CAMERA') {
-
-                drawSlide(0, 0, defaults.camera.width, defaults.camera.width * aspect);
+                if (height > defaults.camera.height) {
+                    y = (height - defaults.camera.width * aspect) / 2;
+                }
+                drawSlide(
+                    0, y,
+                    defaults.camera.width, defaults.camera.width * aspect);
                 if (pip_bb) {
                     // バウンディングボックスの座標の画像を bb_image に保存する
                     let bb_image = video.get(pip_bb.x, pip_bb.y, pip_bb.w, pip_bb.h);
@@ -385,8 +421,9 @@ function draw() {
                     image(
                         bb_image,
                         defaults.camera.width - bb_image.width * pinp_scale - 25,
-                        defaults.camera.width * aspect - bb_image.height * pinp_scale - 25,
-                        bb_image.width * pinp_scale, bb_image.height * pinp_scale
+                        height - bb_image.height * pinp_scale - 25,
+                        bb_image.width * pinp_scale,
+                        bb_image.height * pinp_scale
                     );
 
                     // image(bb_image, defaults.camera.width - defaults.camera.width / 4 - 25,
@@ -396,9 +433,9 @@ function draw() {
                 else {
                     image(video,
                         defaults.camera.width - pinp_scale * defaults.camera.width / 4 - 25,
-                        defaults.camera.width * aspect - pinp_scale * defaults.camera.width * aspect / 4 - 25,
+                        height - pinp_scale * defaults.camera.height / 4 - 25,
                         pinp_scale * defaults.camera.width / 4,
-                        pinp_scale * defaults.camera.width * aspect / 4);
+                        pinp_scale * defaults.camera.height / 4);
                 }
             }
             if (is_show_text) {
@@ -652,14 +689,16 @@ function toggleFullScreen() {
 
 function resetPosition() {
     const aspect = getAspectRatio();
+    const display_aspect = window.screen.height / window.screen.width;
     if (display_mode == 'FULLSCREEN') {
-        resizeCanvas(defaults.camera.width, defaults.camera.width * aspect);
+        resizeCanvas(defaults.camera.width, defaults.camera.width * display_aspect);
     }
     else {
         resizeCanvas(defaults.camera.width, defaults.camera.height);
     }
-    p5canvas.style('height', 'auto');
     p5canvas.style('width', '100%');
+    p5canvas.style('height', 'auto');
+
 
     if (display_mode == 'FULLSCREEN') {
         document.querySelector('#control_ui').style.display = 'none';
