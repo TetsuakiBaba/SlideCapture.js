@@ -151,11 +151,11 @@ function resetCornerPoints() {
 function getAspectRatio() {
     let aspect;
     if (document.querySelector('#aspect').value == "fit") {
-        if (window.screen.width > window.screen.height) {
-            aspect = parseFloat(window.screen.height / window.screen.width);
+        if (window.innerWidth > window.innerHeight) {
+            aspect = parseFloat(window.innerHeight / window.innerWidth);
         }
         else {
-            aspect = parseFloat(window.screen.width / window.screen.height);
+            aspect = parseFloat(window.innerWidth / window.innerHeight)
         }
     }
     else {
@@ -689,7 +689,7 @@ function toggleFullScreen() {
 
 function resetPosition() {
     const aspect = getAspectRatio();
-    const display_aspect = window.screen.height / window.screen.width;
+    const display_aspect = window.innerHeight / window.innerWidth;
     if (display_mode == 'FULLSCREEN') {
         resizeCanvas(defaults.camera.width, defaults.camera.width * display_aspect);
     }
