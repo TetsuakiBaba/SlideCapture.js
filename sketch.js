@@ -9,13 +9,15 @@ let homographyMode = false;
 let transformedImage;
 let active_number = -1;
 let is_pc = true;
+let device_name = 'PC';
 let p5canvas;
+let is_debug = false;
 
 
 let defaults = {
     camera: {
-        width: 1280,
-        height: 720,
+        width: 1920,
+        height: 1080,
         fps: 24
     }
 }
@@ -63,13 +65,14 @@ function setup() {
     c.style('width', '100%');
     c.doubleClicked(toggleFullScreen);
 
-    document.querySelector('#debug_text').innerHTML = `${navigator.userAgent}\n`;
+    document.querySelector('#client_type').innerHTML = `${navigator.userAgent}\n`;
     if (navigator.userAgent.indexOf('Android') > 0 &&
         navigator.userAgent.indexOf('Mobile') > 0) {
         //スマホ用の処理
         c.touchStarted(cmousePressed);
         c.touchMoved(cmouseDragged);
         c.touchEnded(cmouseReleased);
+        device_name = 'Android';
         is_pc = false;
     }
     else if (navigator.userAgent.indexOf('iPhone') > 0 ||
@@ -77,31 +80,42 @@ function setup() {
         alert('iPhoneではフルスクリーンAPIの制約により正しく動作しません。iPadやAndroid等をご利用ください。iPhone is not supported due to the limitation of the Fullscreen API, please use iPad or Android.');
         is_pc = false;
     }
-    else if (navigator.userAgent.indexOf('iPad') > 0 ||
-        navigator.userAgent.indexOf('Android') > 0) {
+    else if (navigator.userAgent.indexOf('iPad') > 0) {
         //タブレット用の処理
         c.touchStarted(cmousePressed);
         c.touchMoved(cmouseDragged);
         c.touchEnded(cmouseReleased);
+        device_name = 'iPad';
         is_pc = false;
-    } else if (navigator.userAgent.indexOf('Safari') > 0 &&
+    } else if (navigator.userAgent.indexOf('Android') > 0) {
+        //タブレット用の処理
+        c.touchStarted(cmousePressed);
+        c.touchMoved(cmouseDragged);
+        c.touchEnded(cmouseReleased);
+        device_name = 'Android';
+        is_pc = false;
+    }
+    else if (navigator.userAgent.indexOf('Safari') > 0 &&
         navigator.userAgent.indexOf('Chrome') == -1 &&
         typeof document.ontouchstart !== 'undefined') {
         //iOS13以降のiPad用の処理
         c.touchStarted(cmousePressed);
         c.touchMoved(cmouseDragged);
         c.touchEnded(cmouseReleased);
+        device_name = 'iPad';
         is_pc = false;
     } else {
         c.mousePressed(cmousePressed);
         c.mouseMoved(cmouseDragged);
         c.mouseReleased(cmouseReleased);
+        device_name = 'PC';
         is_pc = true;
     }
 
     if (!is_pc) {
         document.querySelector('#button_open_fullscreen_ui_window').style.display = 'none';
     }
+    document.querySelector('#device_name').value = device_name;
 
     videoSourceSelect = select('#videoSource');
     videoSourceSelect.changed(initVideo);
@@ -147,16 +161,29 @@ function resetCornerPoints() {
 
 function getAspectRatio() {
     let aspect;
+    let display = { w: window.screen.width, h: window.screen.height };
+    if (device_name === 'iPad') {
+        display = { w: window.screen.height, h: window.screen.height };
+    }
     if (document.querySelector('#aspect').value == "fit") {
-        if (window.innerWidth > window.innerHeight) {
-            aspect = parseFloat(window.innerHeight / window.innerWidth);
+        if (display.w > display.h) {
+            aspect = parseFloat(display.h / display.w);
         }
         else {
-            aspect = parseFloat(window.innerWidth / window.innerHeight)
+            aspect = parseFloat(display.w / display.h)
         }
     }
     else {
         aspect = parseFloat(document.querySelector('#aspect').value);
+    }
+
+    return aspect;
+}
+
+function getDisplayAspectRatio() {
+    const aspect = parseFloat(window.screen.height / window.screen.width);
+    if (aspect > 1.0) {
+        aspect = parseFloat(window.screen.width / window.screen.height);
     }
     return aspect;
 }
@@ -240,6 +267,7 @@ function draw() {
     // background(127);
     rectMode(CORNER);
     fill(0);
+    noStroke();
     rect(0, 0, width, height);
 
     // videoが読み込まれていれば
@@ -286,7 +314,7 @@ function draw() {
                     h: defaults.camera.width * 0.25 * aspect
                 };
 
-                let scale = 0.4;
+                let scale = 0.35;
 
                 if (preview_position == 'LEFT_TOP') {
                     preview_pos = {
@@ -441,6 +469,30 @@ function draw() {
         }
     }
 
+    if (is_debug) {
+        drawDebugInfo();
+    }
+}
+
+function drawDebugInfo() {
+    fill(0, 127);
+    rect(0, 0, width, height);
+    fill(255);
+    let debug_text = `fps:${frameRate().toFixed(2)}\n`;
+    debug_text += `device:${device_name}\n`;
+    debug_text += `display_mode:${display_mode}\n`;
+    debug_text += `fullscreen_mode:${fullscreen_mode}\n`;
+    debug_text += `preview_position:${preview_position}\n`;
+    debug_text += `is_show_text:${is_show_text}\n`;
+    debug_text += `is_black_screen:${is_black_screen}\n`;
+    debug_text += `is_show_preview:${is_show_preview}\n`;
+    debug_text += `pinp_scale:${pinp_scale}\n`;
+    debug_text += `text_message:${text_message}\n`;
+    debug_text += `screen.window.width:${window.screen.width}, screen.window.height:${window.screen.height} \n`;
+    debug_text += `width:${width}, height:${height}\n`;
+    // document.querySelector('#debug_text').innerHTML = debug_text;
+    textAlign(LEFT, TOP);
+    text(debug_text, 10, 100);
 }
 
 function drawControllerMessage(t, x, y, fs) {
@@ -564,6 +616,9 @@ function keyPressed() {
     else if (key == 'b') {
         fullscreen_mode = 'SCREEN_CAMERA';
     }
+    else if (key == 'd') {
+        is_debug = !is_debug;
+    }
 
 }
 
@@ -671,7 +726,7 @@ function toggleShowBasicTutorial(dom) {
 
 function toggleFullScreen() {
     homographyMode = !homographyMode;
-
+    toggleShowScrollbar();
     if (display_mode != 'FULLSCREEN') {
         display_mode = 'FULLSCREEN';
     }
@@ -689,16 +744,17 @@ function toggleFullScreen() {
 }
 
 function resetPosition() {
-    const aspect = getAspectRatio();
-    const display_aspect = window.innerHeight / window.innerWidth;
+    const aspect = getDisplayAspectRatio();
     if (display_mode == 'FULLSCREEN') {
-        resizeCanvas(defaults.camera.width, defaults.camera.width * display_aspect);
+        // resizeCanvas(defaults.camera.width, defaults.camera.width * aspect);
+        resizeCanvas(defaults.camera.width, defaults.camera.width * aspect);
     }
     else {
         resizeCanvas(defaults.camera.width, defaults.camera.height);
     }
     p5canvas.style('width', '100%');
     p5canvas.style('height', 'auto');
+
 
 
     if (display_mode == 'FULLSCREEN') {
@@ -722,57 +778,46 @@ function resetPosition() {
 
 const channel = new BroadcastChannel('slidecapture');
 channel.onmessage = function (event) {
-    if (event.data == 'fullscreen_screen') {
+    if (event.data.type == 'fullscreen') {
         if (display_mode != 'FULLSCREEN') {
             channel.postMessage({
                 type: 'Error',
-                message: 'Please make the main window fullscreen first.'
+                message: 'Please make the main window fullscreen first.',
+                value: false
             });
         }
         else {
-            channel.postMessage(
-                {
-                    type: 'Success',
-                    message: 'fullscreen_screen',
-                    value: true
-                }
-            )
-            fullscreen_mode = 'SCREEN';
-        }
-    }
-    else if (event.data == 'fullscreen_camera') {
-        if (display_mode != 'FULLSCREEN') {
-            channel.postMessage({
-                type: 'Error',
-                message: 'Please make the main window fullscreen first.'
-            });
-        }
-        else {
-            channel.postMessage(
-                {
-                    type: 'Success',
-                    message: 'fullscreen_camera',
-                    value: true
-                }
-            )
-            fullscreen_mode = 'CAMERA';
-        }
-    }
-    else if (event.data == 'fullscreen_screen_camera') {
-        if (display_mode != 'FULLSCREEN') {
-            channel.postMessage({
-                type: 'Error',
-                message: 'fullscreen_screen_camera',
-                text: 'Please make the main window fullscreen first.'
-            });
-        }
-        else {
-            channel.postMessage({
-                type: 'Success',
-                message: 'fullscreen_screen_camera',
-                value: true
-            });
-            fullscreen_mode = 'SCREEN_CAMERA';
+            if (event.data.value == 'screen') {
+                channel.postMessage(
+                    {
+                        type: 'Success',
+                        message: 'fullscreen_screen',
+                        value: true
+                    }
+                )
+                fullscreen_mode = 'SCREEN';
+            }
+            else if (event.data.value == 'camera') {
+                channel.postMessage(
+                    {
+                        type: 'Success',
+                        message: 'fullscreen_camera',
+                        value: true
+                    }
+                );
+                fullscreen_mode = 'CAMERA';
+            }
+            else if (event.data.value == 'pinp') {
+                channel.postMessage(
+                    {
+                        type: 'Success',
+                        message: 'fullscreen_pinp',
+                        value: true
+                    }
+                );
+                fullscreen_mode = 'SCREEN_CAMERA';
+            }
+
         }
     }
     else if (event.data.type == 'show_text') {
@@ -803,3 +848,17 @@ channel.onmessage = function (event) {
         pinp_scale = event.data.value;
     }
 };
+
+function toggleShowScrollbar() {
+    // html, bodyに overflow:hiddenを設定する
+    if (document.querySelector('html').style.overflow == 'hidden' ||
+        document.querySelector('body').style.overflow == 'hidden') {
+        document.querySelector('html').style.overflow = '';
+        document.querySelector('body').style.overflow = '';
+    }
+    else {
+        document.querySelector('html').style.overflow = 'hidden';
+        document.querySelector('body').style.overflow = 'hidden';
+    }
+
+}
