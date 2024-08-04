@@ -16,8 +16,8 @@ let is_debug = false;
 
 let defaults = {
     camera: {
-        width: 1920,
-        height: 1080,
+        width: 1280,
+        height: 720,
         fps: 24
     }
 }
@@ -213,7 +213,16 @@ function initVideo() {
     if (video) {
         video.remove();
     }
+    const resolution = document.querySelector('#select_camera_resolution').value.split('x');
+    camera_width = parseInt(resolution[0]);
+    camera_height = parseInt(resolution[1]);
+    defaults.camera.width = camera_width;
+    defaults.camera.height = camera_height;
 
+    resizeCanvas(defaults.camera.width, defaults.camera.height);
+    transformedImage.resizeCanvas(defaults.camera.width, defaults.camera.height);
+    p5canvas.style('width', '100%');
+    p5canvas.style('height', 'auto');
     let constraints = {
         video: {
             deviceId: videoSourceSelect.value(),
@@ -490,6 +499,7 @@ function drawDebugInfo() {
     debug_text += `text_message:${text_message}\n`;
     debug_text += `screen.window.width:${window.screen.width}, screen.window.height:${window.screen.height} \n`;
     debug_text += `width:${width}, height:${height}\n`;
+    debug_text += `defaults.camera.width:${defaults.camera.width}, defaults.camera.height:${defaults.camera.height}\n`;
     // document.querySelector('#debug_text').innerHTML = debug_text;
     textAlign(LEFT, TOP);
     text(debug_text, 10, 100);

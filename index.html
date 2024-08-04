@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/08/04 16:45:32
+  last modified: 2024/08/04 20:26:33
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -51,6 +51,17 @@
                                     <select class="form-select" id="videoSource"></select>
                                     <button type="button" class="btn btn-primary" onclick="updateCameraList();"><i
                                             class="bi bi-arrow-clockwise"></i></button>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <label class="input-group-text" for="zoom"><i class="bi bi-display"></i></label>
+                                    <select class="form-select" id="select_camera_resolution"
+                                        onchange="toggleCameraResolution(this);">
+                                        <option class="form-select" value="640x480">640x480</option>
+                                        <option class="form-select" value="1280x720" selected>1280x720</option>
+                                        <option class="form-select" value="1920x1080">1920x1080</option>
+                                        <option class="form-select" value="2560x1440">2560x1440</option>
+                                        <option class="form-select" value="3840x2160">3840x2160</option>
+                                    </select>
                                 </div>
                                 <div class="input-group mb-3">
                                     <label class="input-group-text">
@@ -263,6 +274,17 @@
                 is_show_preview = true;
             }
 
+        }
+
+        function toggleCameraResolution(dom) {
+            // もし domのvalueが 640x480 ならば、width = 640, height = 480にする。またその逆も行う
+            const resolution = dom.value.split('x');
+            width = resolution[0];
+            height = resolution[1];
+            // もしカメラが選択されていれば、カメラを再起動する
+            if (videoSource.value !== '') {
+                initVideo();
+            }
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.10.0/lib/p5.min.js"></script>
