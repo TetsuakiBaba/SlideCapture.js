@@ -486,6 +486,8 @@ function draw() {
 function drawDebugInfo() {
     fill(0, 127);
     rect(0, 0, width, height);
+    textSize(width / 100);
+    noStroke();
     fill(255);
     let debug_text = `fps:${frameRate().toFixed(2)}\n`;
     debug_text += `device:${device_name}\n`;
@@ -736,7 +738,7 @@ function toggleShowBasicTutorial(dom) {
 
 function toggleFullScreen() {
     homographyMode = !homographyMode;
-    toggleShowScrollbar();
+    // toggleShowScrollbar();
     if (display_mode != 'FULLSCREEN') {
         display_mode = 'FULLSCREEN';
     }

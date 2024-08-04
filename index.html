@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/08/04 20:26:33
+  last modified: 2024/08/04 20:52:21
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -48,21 +48,18 @@
                                     <label class="input-group-text" for="videoSource"><i
                                             class="bi bi-camera-video"></i></label>
 
-                                    <select class="form-select" id="videoSource"></select>
-                                    <button type="button" class="btn btn-primary" onclick="updateCameraList();"><i
-                                            class="bi bi-arrow-clockwise"></i></button>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <label class="input-group-text" for="zoom"><i class="bi bi-display"></i></label>
-                                    <select class="form-select" id="select_camera_resolution"
-                                        onchange="toggleCameraResolution(this);">
+                                    <select class="form-select" id="videoSource"></select> <select class="form-select"
+                                        id="select_camera_resolution" onchange="toggleCameraResolution(this);">
                                         <option class="form-select" value="640x480">640x480</option>
                                         <option class="form-select" value="1280x720" selected>1280x720</option>
                                         <option class="form-select" value="1920x1080">1920x1080</option>
                                         <option class="form-select" value="2560x1440">2560x1440</option>
                                         <option class="form-select" value="3840x2160">3840x2160</option>
                                     </select>
+                                    <button type="button" class="btn btn-primary" onclick="updateCameraList();"><i
+                                            class="bi bi-arrow-clockwise"></i></button>
                                 </div>
+
                                 <div class="input-group mb-3">
                                     <label class="input-group-text">
                                         <i class="bi bi-aspect-ratio"></i>
