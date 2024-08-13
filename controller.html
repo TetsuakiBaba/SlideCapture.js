@@ -1,6 +1,6 @@
 <script>
     let version = `
-  last modified: 2024/08/04 16:25:09
+  last modified: 2024/08/13 08:30:20
   `;
     // versionから 改行を削除
     version = version.replace(/\n/g, "");
@@ -38,13 +38,22 @@
                                 Slide Capture Video Mixer/Controller
                             </div>
                             <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12 mb-1 mt-3">
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                            <button type="button" class="rounded-5  btn btn-primary btn-lg"
+                                                onclick="toggleCapture(this);">
+                                                <i class="bi bi-display"></i> Screen Preview
+                                            </button>
+                                        </div>
 
-                                <button class="btn btn-lg btn-light mb-3" id="button_black"
-                                    onclick="channel.postMessage({type:'toggle_black_screen'})" style="width:7rem;">
-                                    <i class="bi bi-eye-slash"></i><br>
-                                    Black
-                                </button>
-
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <video id="video"
+                                            poster=" ?text=If you are using HDMI dummy plug, click the upper display icon button to show your hidden display.&width=1280&height=720&bgcolors=000000"
+                                            controls autoplay style="width:100%;height:auto;"></video>
+                                    </div>
+                                </div>
 
                                 <div class="row">
                                     <!-- Layout  -->
@@ -66,12 +75,18 @@
                                                     id="button_fullscreen_camera" style="width:7rem;">
                                                     <i class="bi bi-camera-video"></i> <br>Camera
                                                 </div>
-                                                <div class="btn btn-lg btn-light mb-2"
+                                                <div class="btn btn-lg btn-light mb-2 me-2"
                                                     onclick="channel.postMessage({type:'fullscreen',value:'pinp'});"
                                                     id="button_fullscreen_screen_camera" style="width:7rem;">
                                                     <i class="bi bi-pip"></i>
                                                     <br>PinP
                                                 </div>
+                                                <button class="btn btn-lg btn-light mb-2 me-2" id="button_black"
+                                                    onclick="channel.postMessage({type:'toggle_black_screen'})"
+                                                    style="width:7rem;">
+                                                    <i class="bi bi-eye-slash"></i><br>
+                                                    Black
+                                                </button>
                                                 <hr>
                                                 <label for="customRange1" class="form-label">PinP Scale (1x -
                                                     4x)</label>
@@ -229,7 +244,7 @@
                     document.getElementById('button_fullscreen_screen_camera').classList.remove('btn-danger');
                     document.getElementById('button_fullscreen_screen_camera').classList.add('btn-light');
                 }
-                else if (event.data.message == 'fullscreen_screen_camera') {
+                else if (event.data.message == 'fullscreen_pinp') {
                     document.getElementById('button_fullscreen_screen').classList.remove('btn-danger');
                     document.getElementById('button_fullscreen_screen').classList.add('btn-light');
                     document.getElementById('button_fullscreen_camera').classList.remove('btn-danger');
@@ -252,6 +267,52 @@
         };
 
 
+        // Options for getDisplayMedia()
+        var displayMediaOptions = {
+            video: {
+                cursor: "always"
+            },
+            audio: false
+        };
+
+        let flg_capturing = false;
+        async function toggleCapture(dom) {
+            flg_capturing = !flg_capturing;
+            const video_element = document.getElementById("video");
+            if (flg_capturing) {
+                const ret = await startCapture(video_element);
+                if (ret) {
+                    dom.classList.remove("btn-primary");
+                    dom.classList.add("btn-danger");
+                }
+                else {
+                    flg_capturing = false;
+                    return;
+                }
+
+            } else {
+                const ret = await stopCapture(video_element);
+                dom.classList.remove("btn-danger");
+                dom.classList.add("btn-primary");
+            }
+        }
+
+        async function startCapture(dom) {
+            try {
+                dom.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+                return true;
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function stopCapture(dom) {
+            let tracks = dom.srcObject.getTracks();
+
+            tracks.forEach(track => track.stop());
+            dom.srcObject = null;
+        }
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
@@ -259,6 +320,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/TetsuakiBaba/placeholderable@main/placeholderable.js"
+        crossorigin="anonymous" type="text/javascript"></script>
 </body>
 
 </html>
