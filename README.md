@@ -10,7 +10,15 @@ https://github.com/user-attachments/assets/25a954b4-42a9-4504-b968-f088caad4b53
 
 Photo by Mikael Blomkvist: https://www.pexels.com/ja-jp/photo/6476776/
 
-利用には主に2つの方法があります。
+利用には主に3つの方法があります。
+
+### HDMIダミープラグを用いる方法（Windows, macOS, Linux対応）、もっとも荷物が少ない方法
+1. ウェブカメラ、HDMIダミープラグ、PCを持って学会会場へ
+2. HDMIダミープラグをPCに接続し、拡張ディスプレイとして設定
+3. [SlideCapture.js](https://tetsuakibaba.github.io/SlideCapture.js/)にアクセス
+4. Open Fullscreen UI windowを開き、screen displayボタンからHDMIダミープラグディスプレイをプレビュー表示する
+5. SlideCaptureのブラウザ画面をHDMIダミープラグディスプレイに移動して、全画面表示に切り替える（スライドがダミープラグに画面いっぱいに表示される）
+6. ZOOM等でダミープラグの画面を共有する
 
 ### 外部ディスプレイとWebカメラを用いる方法（Windows, macOS, Linux対応）
 1. ウェブカメラと適当な外付けモバイルディスプレイ、PCを持って学会会場へ
